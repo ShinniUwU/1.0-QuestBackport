@@ -1,0 +1,112 @@
+{
+  "_comment": "Hand-made stand-ins for 1.0 content the 0.16.9 client lacks. Icebreaker quests move to Lighthouse and reuse zones and spawn points SPT already ships there.",
+  "objectives": {
+    "69ce1cfb298a6529b30d712d": {
+      "targetNames": [
+        "bossKnight",
+        "followerBigPipe",
+        "followerBirdEye"
+      ],
+      "count": 3,
+      "maps": [
+        "5704e4dad2720bb55b8b4567"
+      ]
+    },
+    "69e5593e3f425636f1d762d9": {
+      "zones": [
+        {
+          "id": "w_race_cam1",
+          "map": "5704e4dad2720bb55b8b4567"
+        }
+      ],
+      "maps": [
+        "5704e4dad2720bb55b8b4567"
+      ]
+    },
+    "69e5594c6dd4d9e12fa3de0d": {
+      "zones": [
+        {
+          "id": "w_race_cam2",
+          "map": "5704e4dad2720bb55b8b4567"
+        }
+      ],
+      "maps": [
+        "5704e4dad2720bb55b8b4567"
+      ]
+    },
+    "69e559525afcf4e746e98e33": {
+      "zones": [
+        {
+          "id": "w_race_cam3",
+          "map": "5704e4dad2720bb55b8b4567"
+        }
+      ],
+      "maps": [
+        "5704e4dad2720bb55b8b4567"
+      ]
+    },
+    "69e559bf4b53b554a2779130": {
+      "zones": [
+        {
+          "id": "qlight_extension_mechanik1_hide1",
+          "map": "5704e4dad2720bb55b8b4567"
+        }
+      ],
+      "maps": [
+        "5704e4dad2720bb55b8b4567"
+      ]
+    },
+    "69ce1f84ebbdbf36a200627e": {
+      "maps": [
+        "5704e4dad2720bb55b8b4567"
+      ],
+      "possibleLocations": [
+        {
+          "map": "5704e4dad2720bb55b8b4567",
+          "positions": [
+            {
+              "x": 40.274002,
+              "y": 15.1105,
+              "z": -619.311
+            },
+            {
+              "x": -60.6951,
+              "y": 5.3316,
+              "z": -627.51587
+            },
+            {
+              "x": 0.42720032,
+              "y": 3.3931,
+              "z": -654.5141
+            }
+          ]
+        }
+      ]
+    },
+    "6a03343990ee160507db2294": {
+      "items": [
+        "62963c18dbc8ab5f0d382d0b"
+      ],
+      "foundInRaid": true,
+      "count": 1
+    },
+    "6a033442e041f8512e182c8e": {
+      "items": [
+        "62963c18dbc8ab5f0d382d0b"
+      ],
+      "foundInRaid": true,
+      "count": 1
+    }
+  },
+  "drop": [],
+  "text": {
+    "69ce1cfb298a6529b30d712d": "Locate and neutralize the Goons on Lighthouse (stand-in for The Wedge's squad on Icebreaker)",
+    "69e5593e3f425636f1d762d9": "Repair the equipment at the first water treatment plant building entrance on Lighthouse (stand-in for Icebreaker)",
+    "69e5594c6dd4d9e12fa3de0d": "Repair the equipment at the second water treatment plant building entrance on Lighthouse (stand-in for Icebreaker)",
+    "69e559525afcf4e746e98e33": "Repair the equipment at the third water treatment plant building entrance on Lighthouse (stand-in for Icebreaker)",
+    "69e559bf4b53b554a2779130": "Install the hacking device inside the studio on Lighthouse (stand-in for Icebreaker)",
+    "69ce1f84ebbdbf36a200627e": "Locate and obtain the nuclear power unit control log at the water treatment plant on Lighthouse (stand-in for Icebreaker)",
+    "6a03343990ee160507db2294": "Claim a trophy from Knight: the Death Knight mask (stand-in for The Wedge's plate carrier)",
+    "6a033442e041f8512e182c8e": "Hand over the found in raid Death Knight mask"
+  }
+}
