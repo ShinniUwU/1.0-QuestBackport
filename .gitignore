@@ -1,0 +1,10 @@
+# build output
+dist/
+src/bin/
+src/obj/
+__pycache__/
+
+# tarkov.dev downloads, refetched by tools/fetch_data.py
+data/*.json
+# kept: wiki briefings (slow to refetch, CC BY-SA, see README)
+!data/wiki.json
