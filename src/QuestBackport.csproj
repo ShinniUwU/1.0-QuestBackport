@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>ShinnisQuestsBackport</AssemblyName>
+    <RootNamespace>QuestBackport</RootNamespace>
+    <Version>0.1.0</Version>
+    <SptDir Condition="'$(SptDir)' == ''">C:\SPT\SPT_Runtime</SptDir>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <!-- Build against the DLLs shipped with the local SPT install, never copied into the output. -->
+  <ItemGroup>
+    <Reference Include="SPTarkov.Server.Core"><HintPath>$(SptDir)\SPTarkov.Server.Core.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="SPTarkov.DI"><HintPath>$(SptDir)\SPTarkov.DI.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="SPTarkov.Common"><HintPath>$(SptDir)\SPTarkov.Common.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="SemanticVersioning"><HintPath>$(SptDir)\SemanticVersioning.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="WTT-ServerCommonLib"><HintPath>$(SptDir)\user\mods\WTT-ServerCommonLib\WTT-ServerCommonLib.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>
