@@ -6,6 +6,7 @@ using SPTarkov.Server.Core.DI;
 using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Spt.Mod;
 using SPTarkov.Server.Core.Models.Spt.Tables;
+using SPTarkov.Server.Core.Services.Commerce;
 using Range = SemanticVersioning.Range;
 using Version = SemanticVersioning.Version;
 
@@ -36,7 +37,8 @@ public class QuestBackportMod(
     ISptLogger<QuestBackportMod> logger,
     WTTServerCommonLib.WTTServerCommonLib wttCommon,
     TemplateTable templateTable,
-    ModHelper modHelper
+    ModHelper modHelper,
+    MailSendService mailSendService
 ) : IOnLoad
 {
     public async Task OnLoadAsync(CancellationToken cancellationToken)
@@ -47,7 +49,39 @@ public class QuestBackportMod(
         // offers 1.0 quests unlock that SPT's traders don't stock; must exist before quest assorts point at them
         await wttCommon.CustomAssortSchemeService.CreateCustomAssortSchemes(assembly);
         await wttCommon.CustomQuestService.CreateCustomQuests(assembly);
-        ReportLoaded(modHelper.GetAbsolutePathToModFolder(assembly));
+        var modDir = modHelper.GetAbsolutePathToModFolder(assembly);
+        ReportLoaded(modDir);
+
+        var config = ModConfig.Load(Path.Combine(modDir, "config.json"), logger);
+        if (config.CheckForUpdates)
+        {
+            if (config.NotifyInGame)
+                new LoginNoticePatch().Enable();
+            // don't hold up server start waiting on the Forge
+            _ = CheckForUpdate(config);
+        }
+    }
+
+    private async Task CheckForUpdate(ModConfig config)
+    {
+        var current = new ModMetadata().Version;
+        try
+        {
+            var newer = await UpdateCheck.GetNewerVersion(current, CancellationToken.None);
+            if (newer == null)
+                return;
+            var message = $"Shinni's 1.0 QuestsBackport {newer} is out (you have {current}). Get it at {UpdateCheck.ForgeUrl}";
+            logger.Warning($"[Shinni's 1.0 QuestsBackport] {message}");
+            if (config.NotifyInGame)
+            {
+                LoginNoticePatch.Mail = mailSendService;
+                LoginNoticePatch.Message = message;
+            }
+        }
+        catch (Exception e)
+        {
+            logger.Debug($"[Shinni's 1.0 QuestsBackport] update check failed: {e.Message}");
+        }
     }
 
     // WTT only logs on failure, so count what actually reached the quest table.
