@@ -10,7 +10,7 @@ $modName = "ShinnisQuestsBackport"
 $dist = Join-Path $root "dist"
 $modDir = Join-Path $dist "SPT_Runtime\user\mods\$modName"
 
-dotnet build (Join-Path $root "src") -c Release -nologo -v q "-p:SptDir=$Spt"
+dotnet build (Join-Path $root "src") -c Release -nologo -v q
 if ($LASTEXITCODE) { throw "dotnet build failed" }
 
 if (Test-Path $modDir) { Remove-Item -Recurse -Force $modDir }
