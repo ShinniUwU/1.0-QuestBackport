@@ -27,9 +27,22 @@ Example, moving an objective to Lighthouse:
 
 If you can't build it yourself, open a PR with just the JSON change and say what it fixes. I'll build and test it.
 
+## Translating
+
+You only need a spreadsheet program (Excel, LibreOffice or Google Sheets).
+
+1. Download [`translations/en.csv`](translations/en.csv)
+2. Save a copy named after your language's SPT code: `ru` Russian, `kr` Korean, `ch` Chinese, `jp` Japanese, `ge` German, `fr` French, `es` Spanish, `es-mx` Spanish (Mexico), `it` Italian, `pl` Polish, `po` Portuguese, `cz` Czech, `sk` Slovak, `hu` Hungarian, `ro` Romanian, `tu` Turkish. For example `ru.csv`
+3. Fill in the `translation` column. Leave the `id` and `english` columns as they are
+4. Save it as CSV (UTF-8) and open a PR adding it to `translations/`, or attach it to the [translations issue](https://github.com/ShinniUwU/1.0-QuestBackport/issues/2) if you don't use git
+
+You don't have to finish it. Empty rows show up in English, and quests the mod only updates keep the game's own text in your language where 1.0 didn't change it.
+
+When new quests come out, `python tools/translations.py` adds their rows to every language file and keeps what's already translated.
+
 ## Building
 
-See the Building section in the README. You'll need Python 3.10+, the .NET 10 SDK and an SPT 4.1 install with WTT-ContentBackport. The scripts are written for Windows. I haven't tried them on Linux yet.
+See the Building section in the README. You'll need Python 3.10+ and the .NET 10 SDK. The C# part builds without SPT (it pulls SPT and WTT from NuGet), but generating the quests needs an SPT 4.1 install with WTT-ContentBackport. `tools/package.py` only needs Python and dotnet, so it's meant to run on Windows, Linux and macOS (if it breaks on yours, open an issue). The only Windows-only script is `fetch_icons.ps1`, and you won't need it unless you're adding icons for new quests.
 
 `tools/calibrate.py` converts quests SPT already has and diffs them against SPT's own JSON. If you change `tools/convert.py`, run it to check you didn't break anything.
 
