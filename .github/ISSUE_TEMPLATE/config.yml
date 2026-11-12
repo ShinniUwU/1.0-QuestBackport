@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/ShinniUwU/1.0-QuestBackport/discussions
+    about: How do I, would it be possible to, etc.
+  - name: Forge page
+    url: https://sp-mod.com/mod/3340/shinnis-10-questsbackport
+    about: Download, comments and the latest version

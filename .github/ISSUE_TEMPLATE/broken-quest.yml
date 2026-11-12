@@ -1,0 +1,43 @@
+name: Broken quest
+description: A quest that can't be finished, has the wrong objective, or shows the wrong text
+labels: ["bug"]
+body:
+  - type: input
+    id: quest
+    attributes:
+      label: Quest name
+      placeholder: e.g. Hiking
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What's wrong
+      description: Which objective, what you did, and what happened instead
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: SPT version and QuestsBackport version
+      placeholder: SPT 4.1.6, QuestsBackport 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: log
+    attributes:
+      label: Server log line
+      description: The line that starts with [Shinni's 1.0 QuestsBackport]
+      placeholder: "[Shinni's 1.0 QuestsBackport] 423/423 backported quests in the database"
+  - type: textarea
+    id: mods
+    attributes:
+      label: Other mods
+      description: Anything that touches quests, traders, maps or items matters most
+  - type: checkboxes
+    id: fika
+    attributes:
+      label: Fika
+      options:
+        - label: I'm playing on Fika
