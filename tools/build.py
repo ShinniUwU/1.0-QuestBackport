@@ -16,8 +16,11 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from convert import MAP_SUBSTITUTES, STATUS, Ctx, convert_objective, mongo_id  # noqa: E402
 import translations  # noqa: E402
+import checks  # noqa: E402
 
 DATA, SPT_DB, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
+checks.spt_database(SPT_DB)
+checks.data_files(DATA, "wtt_ids.json", "tasks_pve.json", "tasks_pve_en.json")
 ROUBLES, DOLLARS, EUROS, GP = "5449016a4bdc2d6f028b456f", "5696686a4bdc2da3298b456a", "569668774bdc2da2298b4568", "5d235b4d86f7742e017bc88a"
 MONEY = {ROUBLES, DOLLARS, EUROS, GP}
 

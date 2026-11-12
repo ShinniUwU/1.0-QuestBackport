@@ -8,6 +8,9 @@ import subprocess
 import sys
 import zipfile
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import checks  # noqa: E402
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MOD_NAME = "ShinnisQuestsBackport"
 DEFAULT_SPT = r"C:\SPT\SPT_Runtime" if os.name == "nt" else os.environ.get("SPT_DIR", "")
@@ -34,6 +37,8 @@ def main():
     a = ap.parse_args()
     if not a.spt:
         sys.exit("pass --spt /path/to/SPT_Runtime or set SPT_DIR")
+    checks.spt_runtime(a.spt)
+    checks.data_files(os.path.join(ROOT, "data"), "wtt_ids.json", "tasks_pve.json", "tasks_pve_en.json")
 
     dist = os.path.join(ROOT, "dist")
     mod_dir = os.path.join(dist, "SPT_Runtime", "user", "mods", MOD_NAME)
