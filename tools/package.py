@@ -45,6 +45,7 @@ def main():
     run([sys.executable, "-X", "utf8", os.path.join(ROOT, "tools", "build.py"),
          os.path.join(ROOT, "data"), os.path.join(a.spt, "SPT_Data", "database"), mod_dir])
     shutil.copy(os.path.join(ROOT, "src", "bin", "Release", f"{MOD_NAME}.dll"), mod_dir)
+    shutil.copy(os.path.join(ROOT, "src", "config.json"), mod_dir)
     shutil.move(os.path.join(mod_dir, "build_report.json"), os.path.join(dist, "build_report.json"))
 
     zip_path = os.path.join(dist, f"{MOD_NAME}-{a.version}.zip")

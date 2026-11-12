@@ -1,0 +1,6 @@
+{
+  // Check sp-mod.com for a newer version when the server starts
+  "checkForUpdates": true,
+  // Also tell players in game (one system message per server run)
+  "notifyInGame": true
+}

@@ -18,6 +18,7 @@ New-Item -ItemType Directory -Force $modDir | Out-Null
 python -X utf8 (Join-Path $root "tools\build.py") (Join-Path $root "data") (Join-Path $Spt "SPT_Data\database") $modDir
 if ($LASTEXITCODE) { throw "build.py failed" }
 Copy-Item (Join-Path $root "src\bin\Release\$modName.dll") $modDir
+Copy-Item (Join-Path $root "src\config.json") $modDir
 Move-Item (Join-Path $modDir "build_report.json") (Join-Path $dist "build_report.json") -Force
 
 $zip = Join-Path $dist "$modName-$Version.zip"
