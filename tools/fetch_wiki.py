@@ -70,7 +70,11 @@ def parse(wikitext):
         out["success"] = after[0]
     if len(desc) > 1:
         out["fail"] = desc[-1] if "fail" in wikitext[dlg:rew].lower() else None
-    return {k: v for k, v in out.items() if v}
+    out = {k: v for k, v in out.items() if v}
+    # trader loyalty level the quest unlocks at; 0 when the infobox has none
+    ll = re.search(r"\|\s*LL requirement\s*=\s*(\d+)", wikitext)
+    out["loyalty"] = int(ll.group(1)) if ll else 0
+    return out
 
 
 def fetch(page):
@@ -81,7 +85,8 @@ def fetch(page):
 
 
 for t in tasks:
-    if t["id"] in spt or t["id"] in cache or not t.get("wikiLink"):
+    # entries cached before "loyalty" existed are fetched once more
+    if t["id"] in spt or "loyalty" in cache.get(t["id"], {}) or not t.get("wikiLink"):
         continue
     page = urllib.parse.unquote(t["wikiLink"].rsplit("/wiki/", 1)[-1])
     try:
@@ -89,7 +94,7 @@ for t in tasks:
     except Exception as e:  # keep going; a missing page just keeps the placeholder
         print(f"  {page}: {e}")
         continue
-    info = parse(wt) if wt else {}
+    info = parse(wt) if wt else {**cache.get(t["id"], {}), "loyalty": 0}
     cache[t["id"]] = info
     print(f"  {page}: {', '.join(info) or 'no text found'}")
     time.sleep(0.5)

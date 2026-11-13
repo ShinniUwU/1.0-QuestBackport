@@ -450,6 +450,25 @@ def start_conditions(t):
             out.append({"compareMethod": r.get("compareMethod", ">="), "conditionType": "TraderLoyalty", "dynamicLocale": False,
                         "globalQuestCounterId": "", "id": r.get("id") or mongo_id(t["id"], "loyalty"), "index": len(out), "parentId": "",
                         "target": r["trader"], "value": r["value"], "visibilityConditions": []})
+        elif r.get("requirementType") == "reputation":
+            out.append({"compareMethod": r.get("compareMethod", ">="), "conditionType": "TraderStanding", "dynamicLocale": False,
+                        "globalQuestCounterId": "", "id": mongo_id(t["id"], "standing", r["trader"]), "index": len(out), "parentId": "",
+                        "target": r["trader"], "value": spt_standing(r["trader"], r["value"]), "visibilityConditions": []})
+    # 1.0 unlocks these after a number of quests done at a trader loyalty level. The 0.16.9 client
+    # can't count that, so gate on the loyalty level itself (from the wiki infobox).
+    for r in t.get("otherRequirements") or []:
+        if r.get("type") != "globalVariable":
+            continue
+        ll = WIKI.get(t["id"], {}).get("loyalty")
+        if ll is None:
+            ctx.warn(t["id"], "unlock requirement unknown (run fetch_wiki.py), quest is available from the start")
+        elif ll > 1:
+            out.append({"compareMethod": ">=", "conditionType": "TraderLoyalty", "dynamicLocale": False, "globalQuestCounterId": "",
+                        "id": mongo_id(t["id"], "loyalty", r["id"]), "index": len(out), "parentId": "",
+                        "target": t["trader"], "value": ll, "visibilityConditions": []})
+            report["notes"].append(f"{name_of(t['id'])}: unlocks at {t['trader'][:6]} LL{ll} (1.0 also wants {r.get('value')} quests done at that level)")
+        else:
+            report["notes"].append(f"{name_of(t['id'])}: 1.0 wants {r.get('value')} LL1 quests done for {t['trader'][:6]}, not portable, available from the start")
     return out
 
 

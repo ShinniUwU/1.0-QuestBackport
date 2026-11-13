@@ -4,6 +4,7 @@
 
 - A Wedge Between Us uses the real Wedge when Black Division or the Wedge mod is installed
 - With Manimal's Icebreaker Backport installed, its Icebreaker quests replace the Lighthouse stand-ins
+- Fixes 8 new quests being available on a fresh profile: Special Order, Goals and Means, Secret Message, Invasive Therapy, Stimulating Demand, Akimbo and Sisyphus now wait for their trader loyalty level, Compensation for Damage - Wergild for low Fence standing
 
 ## 0.1.1 (2026-11-13)
 

@@ -1,130 +1,162 @@
 {
  "69788d4e963f08d9140bce19": {
   "description": "So, you ready to prove your professional chops? I'm not going to go too hard on you, don't sweat it. For starters, just step onto the Arena. Yeah, that's all, no extra tasks. Just soak in the atmosphere!",
-  "success": "Yeah, yeah, I saw you in action. You're not exactly grabbing the stars yet, but at least there's something to work with."
+  "success": "Yeah, yeah, I saw you in action. You're not exactly grabbing the stars yet, but at least there's something to work with.",
+  "loyalty": 0
  },
  "697878057aa1273126030fb0": {
   "description": "You really thought I'd just take you on after a few completed jobs? No, kid, I take this seriously, and that means you've still got some running to do. Help me out in the Arena, and you'll move up fast. Refuse, and… well, you get the idea. It's all in your hands.",
-  "success": "At first, I thought you'd quit. Figured you were the type who wants to get everything as fast as possible. But you pleasantly surprised me."
+  "success": "At first, I thought you'd quit. Figured you were the type who wants to get everything as fast as possible. But you pleasantly surprised me.",
+  "loyalty": 0
  },
  "69789660b2187365e70bb94a": {
   "description": "Alright, you made yourself noticed again. I won't lie, it was impressive. You even got the attention of some big players. Not without a little help from me, of course: you should've heard how I was hyping you up! Now, if you want to earn more cash, you've got to hold your spot at the top. Show that you're ready to tear your opponents apart with your bare hands!",
-  "success": "Ha! You put on an amazing show! But those interested parties bailed. Who knows why. Maybe it was too bloody for their delicate eyes. Oh well, they're not the last. For now, here, this one's reserved just for you."
+  "success": "Ha! You put on an amazing show! But those interested parties bailed. Who knows why. Maybe it was too bloody for their delicate eyes. Oh well, they're not the last. For now, here, this one's reserved just for you.",
+  "loyalty": 0
  },
  "6978907718bd6d7cbd0e8b8e": {
   "description": "Ready to keep going? Of course it's not over, what else did you expect? We're not messing around here, I take this seriously. So, you've smelled gunpowder, now you need to prove to me that you can kill. A lot. And, preferably, make it look good. So, you ready? Alright, I'll be keeping an eye on you in the Arena.",
-  "success": "You did well, took them down like puppies! I think you've got potential."
+  "success": "You did well, took them down like puppies! I think you've got potential.",
+  "loyalty": 0
  },
  "697895277d31587eab080266": {
   "description": "So, you thought that was it, that you'd reached the top? Think again. Yeah, people are betting on you, but you've got to make sure they don't forget about you. Otherwise they'll wave goodbye and start tossing money at someone else. And we don't want that. I've got a solution for you. People remember victories best — especially a streak of them. Set up a streak like that for yourself, and you can relax after.",
-  "success": "All done? Well, I hardly had any doubts. Here, take this, a nice little bonus for you."
+  "success": "All done? Well, I hardly had any doubts. Here, take this, a nice little bonus for you.",
+  "loyalty": 0
  },
  "6a45208043b8d7604d00b8d5": {
   "description": "In our line of work, we can't afford to rest or slow down. Evil won't be defeated that way. So here's my next task for you. I've been told that something suspicious is happening at the Reserve base, around the loading area. Head there and deal with whatever filth has gathered there. And don't forget to fire the signal flare first, so I know you've begun your work. I'll take care of anyone who tries to run.",
-  "success": "You and I make a fine team."
+  "success": "You and I make a fine team.",
+  "loyalty": 3
  },
  "6a5cd2178fd7c2b201032f3f": {
   "description": "Good day, mercenary. You arrived just in time. Some of my partners would like us to test the weapons before purchasing them. They require a demonstration. Take 7.62x51 assault rifles and designated marksman rifles and head to Reserve. There has been some suspicious activity reported there recently... Let us combine business with pleasure.",
-  "success": "I have already been informed of how you performed. The order from my partners has been confirmed."
+  "success": "I have already been informed of how you performed. The order from my partners has been confirmed.",
+  "loyalty": 3
  },
  "6a959d33b9b22567ed0d0a4e": {
   "description": "Come on in, brother! I've got a new little business venture here, and I'm looking for someone who can help me out. I was recently contacted by someone from across the border. Turns out there's a demand over there for stuff taken out of Tarkov. I don't really get who'd be into that, but money's money. Especially when it comes to luxury goods with a bit of history from the city. Yeah, that's exactly how the guy put it. I've got the manpower and plenty of motivation to make some serious cash. But most importantly, I've got experience faking luxury goods. I'm thinking of setting up a workshop to put together some Louise Pitton accessories. Go collect some useful stuff around Tarkov from this list, and I'll make it worth your while.",
-  "success": "You helped me out big time, bro! There's already a queue back home for my goods with a \"history\". Here, take this, for your help."
+  "success": "You helped me out big time, bro! There's already a queue back home for my goods with a \"history\". Here, take this, for your help.",
+  "loyalty": 0
  },
  "6a4532e48e82d8ffea0c3eae": {
   "description": "Hello-hello. I've got a new job for you. There's been a lot of talk lately about those so-called laboratories. I don't like all this commotion, especially all the pillagers dragging whatever they can get their hands on out of those places. Head down there and thin their ranks. Make an example of them so others think twice before following in their footsteps. Do it quickly, or they won't get the message.",
-  "success": "I've already heard rumors of what you did. Keep it up."
+  "success": "I've already heard rumors of what you did. Keep it up.",
+  "loyalty": 4
  },
  "6834287b7559f4e6d50bc0fa": {
   "description": "Well, you fucked up with the evidence in a very embarrassing way, but sure, I'll keep my word. I'll get you your fucking container. But now I'm gonna ask you for something else, since things got so ugly.",
-  "success": "All right, you've earned your reward. But you better know I'm not gonna take any more of your bullshit. You start digging again, you'll end up like that old champion."
+  "success": "All right, you've earned your reward. But you better know I'm not gonna take any more of your bullshit. You start digging again, you'll end up like that old champion.",
+  "loyalty": 0
  },
  "6942b44f891369fc790e385a": {
   "description": "Hello. One of your people stopped by recently and tried to convince me that the most important part of a fighter's gear is armor, and that situational awareness doesn't matter nearly as much. Frankly, I don't share that view. Sure, you can't see or hear absolutely everything. But armor will never give you complete protection either, especially if you walk into an ambush. Personally, I'd take a good headset over heavy, reinforced armor any day. Fortunately, I don't have to make that choice myself. So what would you choose? You've got enough experience to test this properly in the field. Better yet, let's try this: you gather some real statistics using two different loadouts, and in return I'll arrange a supply of some unique items from Peacekeeper. He owes me a favor, you see. Try neutralizing PMC operatives while wearing a headset but no armor. Then do the opposite, say... using a tank crew helmet. That should put you at a serious information disadvantage.",
-  "success": "So, how did it go? You're saying you need both gear and good hearing? Yes, that's exactly what I expected. Still, the research was useful, so you've earned your reward. Those headsets are usually custom-made, but Peacekeeper should be able to supply models that fit you properly."
+  "success": "So, how did it go? You're saying you need both gear and good hearing? Yes, that's exactly what I expected. Still, the research was useful, so you've earned your reward. Those headsets are usually custom-made, but Peacekeeper should be able to supply models that fit you properly.",
+  "loyalty": 4
  },
  "68ee1c18b4e5bc9a68018cd7": {
   "description": "Hey there, soldier! Got a job for you that I wouldn't trust to just anyone. Special order, you could say. I need an ice axe. Wipe that look off your face! And keep your mouth shut about this job, or we'll both catch hell. So don't go checking the Flea Market or asking the other traders. You need to find one yourself, quietly. No unnecessary witnesses. Got it? Word is Shturman was seen carrying the right kind of ice axe. The Cultists might've stashed one away in their hideouts, too... But that's unconfirmed. Either way, that's your problem now, not mine! Get this done, and I'll arrange access to a very special weapon, just for you. Ever since the Contract Wars, these things have become almost impossible to get. I'm giving you a one-of-a-kind opportunity here. Don't waste it.",
-  "success": "Good work. And not a word about this to anyone, understood? Better keep your head down for a while, too. If anyone gets too curious, keep them at arm's length. My little gift should help with that."
+  "success": "Good work. And not a word about this to anyone, understood? Better keep your head down for a while, too. If anyone gets too curious, keep them at arm's length. My little gift should help with that.",
+  "loyalty": 4
  },
  "69c27158e350f01390049e77": {
   "description": "You did pretty well helping with the Rogues, and the smugglers actually came to me themselves. One of their commanders is being held by those bastards over at the water treatment plant, and the guys want to get their own man back. But for that, they need a reliable route from Priozersk to the Rogue base. If you help with that, maybe we can talk about your request too. You'll need to go along the path from the nature reserve to the lighthouse and mark the start and end of the route.",
-  "success": "Let's hope this smuggler operation goes smoothly."
+  "success": "Let's hope this smuggler operation goes smoothly.",
+  "loyalty": 0
  },
  "69c26c07683c9831020018c7": {
   "description": "I already told you everything in the car. But if you really wanna get the smugglers to put in a more comfortable transport option to Icebreaker, you'll need to help them out with their fight against the Rogues first. Looks like things between them are pretty serious, and honestly I have no idea where it's going worst. So you can take initiative anywhere you want, just make sure there are fewer Rogue fighters left. Otherwise the smugglers won't even listen to you, they've got bigger problems right now.",
-  "success": "Didn't think you'd do it this well. Good work, man."
+  "success": "Didn't think you'd do it this well. Good work, man.",
+  "loyalty": 0
  },
  "68db9c7557bc51a8c804c14b": {
   "description": "Hello. I used to believe that staying inside clear boundaries and doing the job by the book was the highest form of professionalism. When you can pick the right tool for any task and never step out of the top league. Working only with the best equipment. But Tarkov showed me that being just a professional isn’t enough. Here I learned that true mastery is forged under harsh conditions with limited resources, when the outcome can’t be predicted. You start relying more on your own experience and intuition, and if you’re good enough — you rise to the very top. Since the Contract Wars, I’ve held on to a small reserve of special weapons. But like in my line of work, they’re only tools. An ordinary professional doesn’t have the skills to unlock the full potential of such a piece. It takes a true master. And I’m starting to think you might be able to handle such a temperamental weapon. If you can prove that you can solve problems no matter what tools you’re given — I’ll open access to this special section of my arsenal.",
-  "success": "Managed it? Honestly, I wasn’t sure we’d ever come back to this conversation. But I’ll keep my word. Back during the Contract Wars, everyone feared this weapon. BEAR operatives who carried it were unbeatable. And for USECs, getting their hands on one was considered an incredible stroke of luck. Not because the weapon makes you immortal. But because its owner is a true master — someone nobody wants to face."
+  "success": "Managed it? Honestly, I wasn’t sure we’d ever come back to this conversation. But I’ll keep my word. Back during the Contract Wars, everyone feared this weapon. BEAR operatives who carried it were unbeatable. And for USECs, getting their hands on one was considered an incredible stroke of luck. Not because the weapon makes you immortal. But because its owner is a true master — someone nobody wants to face.",
+  "loyalty": 4
  },
  "69ce204c8702b378f9091e4b": {
   "description": "Hello, mercenary. In field conditions it is extremely important to anticipate any potential hazards in advance. Once a patient is already on the operating table, you can only work with whatever is available at hand. That is why I would like you to bring me high-dose potassium iodide tablets. Yes, these are used in cases of severe radiation exposure. And no, we have not recorded any leaks recently. I must ask you not to spread information about this order. You do not realize how severely panic among the population can complicate the work of my department. I am simply preparing for any incidents that may occur in the future. The issue is that in Tarkov itself we have never found this dosage. Such preparations are typically stored at nuclear facilities, as they are only relevant there. I hope your search proves more successful than that of my staff.",
-  "success": "Where did you manage to obtain so many? I was not even expecting five packs… The Icebreaker? Such a find could be extremely important for supporting our work. I need to check something in the department, and then I will return to you with a new task. We cannot afford to miss an opportunity of this value."
+  "success": "Where did you manage to obtain so many? I was not even expecting five packs… The Icebreaker? Such a find could be extremely important for supporting our work. I need to check something in the department, and then I will return to you with a new task. We cannot afford to miss an opportunity of this value.",
+  "loyalty": 0
  },
  "69ce1de03e15cd80bd06f6c9": {
   "description": "Heya there, warrior! Since you already know about my little helicopter secret, I've got a job for you. If you want my bird to keep picking you up from the ship, it needs regular maintenance. Remember that special lubricant you brought me? You won't find that stuff in Tarkov, but there should still be some supplies left on the Icebreaker. Go take a look, check the helipad and storage areas. Anything you find in cans, bring it back to me. You've got your own interest in this too, so you won't be doing it for nothing. And if you manage to pull together a decent stock, I'll even pay extra.",
-  "success": "Alright, you handled that job well. I'll give you that. Maybe things between us will keep going smooth, just don't forget your reputation and don't even think about screwing me over. You're dismissed for now, soldier."
+  "success": "Alright, you handled that job well. I'll give you that. Maybe things between us will keep going smooth, just don't forget your reputation and don't even think about screwing me over. You're dismissed for now, soldier.",
+  "loyalty": 0
  },
  "69ce21e990144e437802b1e0": {
   "description": "Howdy, ahper! I heard there's some serious commotion going on at some ship in the bay. Apparently some unknown group is operating there, definitely not one of your guys. You see where I'm going with this? If it's neither BEAR nor USEC, then their gear has to be something special. And special goods are the best goods, brother! If you can get to that ship and bring me back any captured armor or rigs, they'll fly off the shelves. And you'll get your cut too, you know me!",
-  "success": "Lemme take a look… With a bit of work, this could even pass as brand new! My guys have restored gear in worse condition than this. I never doubted you, brother, your share is already here. Come pick it up whenever it suits you, yeah?"
+  "success": "Lemme take a look… With a bit of work, this could even pass as brand new! My guys have restored gear in worse condition than this. I never doubted you, brother, your share is already here. Come pick it up whenever it suits you, yeah?",
+  "loyalty": 0
  },
  "69ce1cfb298a6529b30d712b": {
   "description": "Sit down kid, got something to talk about. Partisan spotted helicopters over the bay, no markings on them. They were heading straight for some ship out there, definitely not toward the city. Those were combat birds, not belonging to the UNTAR troops or any PMC, that's for certain. He said he's only seen something like that once before, and that wasn't even in Tarkov. If this is some kind of special unit, nothing good will come from it. Most likely they're pulling in veterans from elite forces, could be SAS, Mossad, or God knows who else these days. I asked Mechanic if he knows anything about them. He's been listening in on that frequency range, managed to catch the callsign of their leader, though barely. \"Wedge”... Listen, we can't let people like that dig in, not on the ship, and definitely not in the city. I'm counting on you here. Best meet fire with fire, like they say.",
-  "success": "Good thing I trusted my instincts. We need to keep Tarkov safe from fighters like this. If they get a foothold, they'll take control of the whole city, and nobody will be able to stop them after that. If you see those black-clad soldiers again, don't let them slip away. Our survival might depend on it."
+  "success": "Good thing I trusted my instincts. We need to keep Tarkov safe from fighters like this. If they get a foothold, they'll take control of the whole city, and nobody will be able to stop them after that. If you see those black-clad soldiers again, don't let them slip away. Our survival might depend on it.",
+  "loyalty": 0
  },
  "69c2a2d004de49c8f0055a3d": {
   "description": "I went over to the guys, we had a real good talk... When you're ready, just come see me and I'll tell you everything, uh... In person!",
-  "success": "The smugglers are ready to help you, but not for free. So if you're ready to pay, we can get you to Icebreaker straight from your little basement. Just give me a heads-up in advance, alright?"
+  "success": "The smugglers are ready to help you, but not for free. So if you're ready to pay, we can get you to Icebreaker straight from your little basement. Just give me a heads-up in advance, alright?",
+  "loyalty": 0
  },
  "69c277f3ea6da9c23e07f8d2": {
   "description": "Alright, well the smugglers managed to get their commander out, though not without losses. I'm heading over to talk things through and ask about you as well. But you get it, right now they need to both celebrate the win and properly remember the ones they lost. So I can't show up empty-handed. You gonna help set the table?",
-  "success": "That's a decent haul of grub you brought. With stuff like this, the conversation will go a lot easier. By the next time we meet, I should have something for you about your request."
+  "success": "That's a decent haul of grub you brought. With stuff like this, the conversation will go a lot easier. By the next time we meet, I should have something for you about your request.",
+  "loyalty": 0
  },
  "6a5ccda873f06065630d61b0": {
   "description": "How do you feel about 12-gauge shotguns? And what about scavengers? Good. Let us combine the two for maximum efficiency. Clear the downtown using these weapons. Why? Because we intend to send a message to those who are meant to receive it. I cannot tell you anything more than that.",
-  "success": "Great job! The message has been sent and received."
+  "success": "Great job! The message has been sent and received.",
+  "loyalty": 2
  },
  "6a5c1578f2689567c30eb0f3": {
   "description": "Hello, my friend! Do you enjoy hiking? I do not, which is why I need your help. In the northwestern part of the Priozersk forest, scavengers are preventing my men from delivering humanitarian supplies. The area must be cleared. Got it?",
-  "success": "You did it! Great! Here is your reward."
+  "success": "You did it! Great! Here is your reward.",
+  "loyalty": 1
  },
  "6a5424ae135497b9df0c68be": {
   "description": "Good afternoon, young man. Last fall, Tarkov experienced a severe influenza outbreak. I caught it twice myself. This year, however, I managed to arrange for an influenza vaccine to be delivered through the UN peacekeepers' supply channels... Though that isn't why I asked you here. I'm planning to organize a vaccination campaign this fall, but before that, I need to vaccinate myself and everyone working at my clinic. Unfortunately, sterile syringes are in short supply. Could you obtain five for me? Please make sure their packaging remains intact!",
-  "success": "Were you able to find them? Excellent, I'll begin administering the vaccines tomorrow."
+  "success": "Were you able to find them? Excellent, I'll begin administering the vaccines tomorrow.",
+  "loyalty": 1
  },
  "6a7ae35b2dbf91eb050af95a": {
   "description": "Hello. I ask that you not discuss this assignment with anyone. You may also keep any questions you have to yourself. Recently, one of my shipments of injectors was intercepted by the Rogues. It seems that after the battle at the treatment plant, they have started carrying out bolder and more aggressive raids in search of equipment and medical supplies. I would be more than happy to help the wounded, but these people are trying to obtain what they need behind my back! I'm sorry... In any case, I cannot allow them to conduct business this way, and I have no choice but to respond. This needs to be handled in such a way that they never try to take my goods without my knowledge again. They keep the medications taken from my group in their chalets. Replace some of them with experimental drugs produced by Sanitar.",
-  "success": "I hope you haven't told anyone about our business. I think you understand how dangerous it is to show weakness in a place like Tarkov has become. After all, I pay you for your professionalism and impartiality in your work. Let's continue to uphold those standards."
+  "success": "I hope you haven't told anyone about our business. I think you understand how dangerous it is to show weakness in a place like Tarkov has become. After all, I pay you for your professionalism and impartiality in your work. Let's continue to uphold those standards.",
+  "loyalty": 3
  },
  "6a7af2e48fddc3979d0510b8": {
   "description": "Good to see you, brother! I've got a job, and it's one only a master like you can handle. Some Scavs recently intercepted a shipment of plate carriers I had near the lighthouse. Nothing too fancy in there, but those fuckers need to pay for stealing my goods! Only, we're gonna do this one a little differently. I want to see how plate carriers in this price range hold up against different calibers, and now we've got a bunch of idiots walking around wearing them! So we might as well make this test as close to real combat as possible. Take two different caliber rifles on the job and do your part. Just don't shoot 'em in the head, okay? I'm interested in how well the armor holds up! Don't bring the carriers back to me. Once you're done, I'll send my guys to collect the \"samples\".",
-  "success": "So, you tired from lugging two guns around? But most importantly, you did the job right, as always! I'll send my guys after the armor now. You get some rest. Maybe these tests will even give us some ideas for improving the gear..."
+  "success": "So, you tired from lugging two guns around? But most importantly, you did the job right, as always! I'll send my guys after the armor now. You get some rest. Maybe these tests will even give us some ideas for improving the gear...",
+  "loyalty": 3
  },
  "6a7aef2360157cb5e3029a5f": {
   "description": "Hey. Got a little number for ya. One of Knight's lads got in touch with me recently, so I was already gearing up for a new supply line... Keeping the Rogues stocked with gear's only gonna do me good, specially if them smugglers are starting to get a bit too fucking big for their boots! But after the first order of basic supplies and ammo, the whole thing went quiet. Reckon the Rogues think they're all sorted now and have properly dug in at the chalets. So I'm thinking, why not give 'em a little nudge to start buying again, eh? Just make bloody sure none of 'em cottons on that I'm behind it, got me? Heard some important package turned up for them recently. That's what we're after. We need to make it look like Prapor's lot came calling, and we need to put on a proper show. So grab something unmistakably Russian and carry out a textbook raid on the chalets, then relieve 'em of their little box! Bring the box to me, mind. Never know when something like that might come in handy.",
-  "success": "Fucking beautiful! So, you didn't look inside the box, did ya? Good lad, that's exactly what I wanted! Now hand it over. I'll have a look myself."
+  "success": "Fucking beautiful! So, you didn't look inside the box, did ya? Good lad, that's exactly what I wanted! Now hand it over. I'll have a look myself.",
+  "loyalty": 3
  },
  "6a7b0df31ea00c9a980e2742": {
   "description": "How's your physical shape, ahper? I've got one deal that's still hanging over my head, and I could really use some help. But I'll tell you right now, you can throw your back out in no time doing this! So, I've made contact with the smugglers. Wouldn't exactly call it a partnership, but they've got a decent job for me. We need to deliver some armor plates to their boys. Everything's already packed up and waiting at the drop-off points, so all that's left is getting it to the recipients. You in? Both cases with the armor plates are in Priozersk right now. One's in the bunker, and the other's at the abandoned USEC checkpoint. One case needs to be hauled to the guardhouse at the military base. You want the one next to the trail leading to Woods. The second case is supposed to go in the railcar with the Ural truck at the train station near the water treatment plant. Once you've left both cases at the right spots, let the armored train engineer know.",
-  "success": "After a job like that, you oughta spend at least a couple days lying down, brother! You really bailed me out. I didn't have anyone else who could handle a job that damn monumental. I've got a special reward ready for you. Here, take it. It'll give you an excuse to hang around the hideout and put those plates in the case properly."
+  "success": "After a job like that, you oughta spend at least a couple days lying down, brother! You really bailed me out. I didn't have anyone else who could handle a job that damn monumental. I've got a special reward ready for you. Here, take it. It'll give you an excuse to hang around the hideout and put those plates in the case properly.",
+  "loyalty": 3
  },
  "61e6e60c5ca3b3783662be27": {
   "description": "You know, doing errands all day is still not enough to improve your poor situation. I think there is and easier way. Bribe the right people and they'll sing praises about how amazing you are. For example, you can compensate the friends of those you killed due to your brain disorder. Something like a wergild for murder in the Middle Ages.",
-  "success": "Outstanding. Part of the compensation will go where it needs to go, and the other part will stay with me. Let's say it's for maintaining our cooperation."
+  "success": "Outstanding. Part of the compensation will go where it needs to go, and the other part will stay with me. Let's say it's for maintaining our cooperation.",
+  "loyalty": 0
  },
  "69ce213a298a6529b30d7134": {
   "description": "This icebreaker you've found is a real discovery! If it is located that far out, there could still be medical equipment on board that survived the blast in the city center… We will not get a second opportunity like this. In conditions of isolation and the inability to provide full hospital care, we usually rely on specialized biochemical analyzers. They allow us to perform a wide range of tests quickly and with the necessary accuracy. However, most of the reserve units in Tarkov were taken by emergency services during the evacuation. But on the icebreaker there could still be analyzers in working condition. Especially if it is connected to TerraGroup. Search for them for me, preferably several. The ship likely had its own medical section where they could have been installed.",
-  "success": "You found the Aceso? That is probably the best news of the day. Given the shortages in Tarkov, they will be a very valuable asset… But of course, I will only consider parting with them in cases of extreme necessity. For now, they will go straight into operation and greatly ease the workload of my staff and patients."
+  "success": "You found the Aceso? That is probably the best news of the day. Given the shortages in Tarkov, they will be a very valuable asset… But of course, I will only consider parting with them in cases of extreme necessity. For now, they will go straight into operation and greatly ease the workload of my staff and patients.",
+  "loyalty": 0
  },
  "69ce1f84ebbdbf36a200627c": {
   "description": "Greetings. I have an urgent assignment for you. You are not yet aware of the situation, so I will need to provide some context. However, everything I am about to disclose is top secret, understood? There is a secured facility within the blockade perimeter that is of interest to my contacts in the nuclear energy sector. The issue is that it is an icebreaker ship, currently stranded in the bay. To access it, you will need to acquire suitable transport, and it is preferable to do so quietly. No one must know that the vessel is present in Tarkov's waters at all! Once you secure transport, you are to retrieve operational documentation from the ship. Search the engineering sections, there should be a logbook for the nuclear power unit control system. Do not, under any circumstances, disclose this task to anyone.",
-  "success": "You have the logbook? I trust you avoided drawing attention on your way back. I will arrange your reward through my associates. One more thing: I strongly advise against returning to the Icebreaker. According to my sources, it has already come under the control of some special unit. You would not survive an engagement with them."
+  "success": "You have the logbook? I trust you avoided drawing attention on your way back. I will arrange your reward through my associates. One more thing: I strongly advise against returning to the Icebreaker. According to my sources, it has already come under the control of some special unit. You would not survive an engagement with them.",
+  "loyalty": 0
  },
  "69e5583240c3e6c8ba0edbd5": {
   "description": "It looks like you will have to return to the Icebreaker after all. The data from the nuclear power plant logbook was not sufficient. Our partners need real-time readings from the power unit, so I've purchased a special device from Mechanic for remote connection to the central control station. Before you install it, however, you must ensure that all equipment in the technical areas is functioning properly. Take tools with you and restore the circuit breakers that have been taken offline, then install this device in the control room. I have been informed that the damaged breakers are likely located in three areas. One is directly on the way to the engine room, near the locker rooms with coats. The second is directly beneath that section. The third is somewhere in the corridors running along the engine compartment. Once you have restored all breakers, return to the central control station. Install the device there and report back.",
-  "success": "It seems Mechanic’s device is functioning properly. I hope you managed to avoid contact with the special unit I warned you about. My recommendation remains the same: if you want to survive, it would be best not to return to that site."
+  "success": "It seems Mechanic’s device is functioning properly. I hope you managed to avoid contact with the special unit I warned you about. My recommendation remains the same: if you want to survive, it would be best not to return to that site.",
+  "loyalty": 0
  }
 }
