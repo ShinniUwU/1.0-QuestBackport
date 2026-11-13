@@ -1,6 +1,6 @@
 # Build the mod and pack it as a drag-and-drop zip (SPT_Runtime/user/mods/<mod>).
 # Same as package.ps1, but runs on Linux and macOS too.
-# usage: python tools/package.py [--spt /path/to/SPT_Runtime] [--version 0.3.1]
+# usage: python tools/package.py [--spt /path/to/SPT_Runtime] [--version 0.3.2]
 import argparse
 import os
 import shutil
@@ -33,7 +33,7 @@ def zip_dir(dist, zip_path):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--spt", default=DEFAULT_SPT, help="SPT_Runtime folder (or set SPT_DIR)")
-    ap.add_argument("--version", default="0.3.1")
+    ap.add_argument("--version", default="0.3.2")
     a = ap.parse_args()
     if not a.spt:
         sys.exit("pass --spt /path/to/SPT_Runtime or set SPT_DIR")

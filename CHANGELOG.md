@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.2 (2026-11-13)
 
 - Fixes start items on 34 existing quests not matching 1.0. Fishing Gear handed out an SV-98 while the objective asked for an MF-UNTAR body armor
 - Fixes 4 stash objectives that still wanted the old item: Fishing Gear, Golden Swag and two in Bullshit

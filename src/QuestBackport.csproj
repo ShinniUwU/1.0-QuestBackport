@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>ShinnisQuestsBackport</AssemblyName>
     <RootNamespace>QuestBackport</RootNamespace>
-    <Version>0.3.1</Version>
+    <Version>0.3.2</Version>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
