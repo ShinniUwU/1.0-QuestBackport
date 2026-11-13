@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 (2026-11-13)
+
+- Fixes Reconnaissance, No Swiping, The Huntsman Path - Trophy and Payback showing no objectives and missing from the Tasks list
+
 ## 0.1.0 (2026-11-12)
 
 First release.
