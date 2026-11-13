@@ -11,6 +11,7 @@ usage: python translations.py
     keeping what's already translated
 """
 import csv
+import json
 import os
 import sys
 
@@ -18,6 +19,9 @@ DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
 HEADER = ["id", "english", "translation"]
 # the locale files SPT ships (SPT_Data/database/locales/global)
 LANGS = {"ch", "cz", "es", "es-mx", "fr", "ge", "hu", "it", "jp", "kr", "pl", "po", "ro", "ru", "sk", "tu"}
+# SPT language code -> the code tarkov.dev uses for the same language
+LIVE = {"ch": "zh", "cz": "cs", "es": "es", "es-mx": "es", "fr": "fr", "ge": "de", "hu": "hu", "it": "it", "jp": "ja",
+        "kr": "ko", "pl": "pl", "po": "pt", "ro": "ro", "ru": "ru", "sk": "sk", "tu": "tr"}
 
 
 def _path(code):
@@ -56,15 +60,30 @@ def languages():
     return [c for c in codes if c in LANGS]
 
 
-def localize(english, translated, native=None, native_en=None):
+def live(data_dir, code, live_en):
+    """{id: text} of tarkov.dev's 1.0 quest text in that language (data/tasks_pve_<code>.json,
+    from fetch_data.py), without the strings tarkov.dev itself still has in English."""
+    path = os.path.join(data_dir, f"tasks_pve_{LIVE.get(code)}.json")
+    if code not in LIVE or not os.path.exists(path):
+        return {}
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)["data"]
+    return {k: v for k, v in data.items() if isinstance(v, str) and v and v != live_en.get(k)}
+
+
+def localize(english, translated, native=None, native_en=None, live=None, live_en=None):
     """Text for one language. Every key gets a value so nothing shows up as a raw id:
-    the translator's text, else SPT's own text in that language when 1.0 didn't change
-    the English (quests we only patched), else English."""
+    the translator's text, else the 1.0 game's own translation when our English is still
+    the 1.0 English (not a stand-in we reworded), else SPT's own text in that language
+    when 1.0 didn't change the English (quests we only patched), else English."""
     native, native_en = native or {}, native_en or {}
+    live, live_en = live or {}, live_en or {}
     out = {}
     for k, v in english.items():
         if translated.get(k):
             out[k] = translated[k]
+        elif live.get(k) and live_en.get(k) == v:
+            out[k] = live[k]
         elif k in native and native.get(k) and native_en.get(k) == v:
             out[k] = native[k]
         else:

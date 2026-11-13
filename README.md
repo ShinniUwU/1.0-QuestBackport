@@ -43,7 +43,9 @@ Set either to `false` to turn it off. The check is one request to sp-mod.com and
 
 ## Languages
 
-Quest text comes in English, plus any languages in [`translations/`](translations). To add yours, see [Translating](CONTRIBUTING.md#translating). All it takes is a spreadsheet.
+Quest names and objectives use the 1.0 game's own translations (from tarkov.dev) in every language SPT has. Russian, Chinese, Spanish, Italian and Portuguese are almost complete, the others fall back to English where the game has no translation. The trader briefings of the 32 new quests and the stand-in objectives are English only for now.
+
+To translate those or fix a line, see [Translating](CONTRIBUTING.md#translating). All it takes is a spreadsheet.
 
 ## Compatibility
 

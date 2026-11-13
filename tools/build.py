@@ -715,7 +715,7 @@ def _patch_rewards(q, t, changes):
 
 # ---------------------------------------------------------------- optional mods
 
-def build_optional(db):
+def build_optional(db, write_locales):
     """db/Optional/<mod guid>/: quests that replace ours when that mod is loaded.
     Mod.cs reads index.json and applies the entries in order."""
     root = os.path.join(db, "Optional")
@@ -729,15 +729,16 @@ def build_optional(db):
     for e in entries:
         base = os.path.join(root, e["mod"])
         os.makedirs(base, exist_ok=True)
+        by_dir = {}  # trader folder -> (quests, english text)
         for qid in e.get("quests", []):
             q, locale = new_quest(by_id[qid], e)
-            d = os.path.join(base, "CustomQuests", q["traderId"])
-            for sub, name, data in (("Quests", "quests.json", {qid: q}), ("Locales", "en.json", locale)):
-                os.makedirs(os.path.join(d, sub), exist_ok=True)
-                p = os.path.join(d, sub, name)
-                old = json.load(open(p, encoding="utf-8")) if os.path.exists(p) else {}
-                old.update(data)
-                json.dump(old, open(p, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+            quests, english = by_dir.setdefault(os.path.join(base, "CustomQuests", q["traderId"]), ({}, {}))
+            quests[qid] = q
+            english.update(locale)
+        for d, (quests, english) in by_dir.items():
+            os.makedirs(os.path.join(d, "Quests"), exist_ok=True)
+            json.dump(quests, open(os.path.join(d, "Quests", "quests.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+            write_locales(d, english)
         for qid in e.get("replaces", {}):
             for t in tasks:
                 reqs = [r["task"] if isinstance(r["task"], str) else r["task"]["id"] for r in t.get("taskRequirements") or []]
@@ -793,21 +794,32 @@ def main():
         path = os.path.join(native_dir, f"{code}.json")
         if os.path.exists(path):
             native[code] = json.load(open(path, encoding="utf-8"))
+    # the 1.0 game's own translations of quest names and objectives, from tarkov.dev
+    live = {code: translations.live(DATA, code, TEXT) for code in translations.LANGS}
+    report["live_translations"] = {}
+
+    def write_locales(base, english, count=False):
+        os.makedirs(os.path.join(base, "Locales"), exist_ok=True)
+        json.dump(english, open(os.path.join(base, "Locales", "en.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+        for code in sorted(set(translated) | (set(native) - {"en"})):
+            tr, lv = translated.get(code, {}), live.get(code, {})
+            loc = translations.localize(english, tr, native.get(code), native.get("en"), lv, TEXT)
+            json.dump(loc, open(os.path.join(base, "Locales", f"{code}.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+            if not count:
+                continue
+            if code in translated:
+                done = report["translations"].setdefault(code, [0, 0])
+                done[0] += sum(1 for k, v in english.items() if v and k in tr)
+                done[1] += sum(1 for v in english.values() if v)
+            used = sum(1 for k, v in english.items() if v and k not in tr and lv.get(k) and TEXT.get(k) == v)
+            if used:
+                report["live_translations"][code] = report["live_translations"].get(code, 0) + used
 
     for trader, quests in by_trader.items():
         base = os.path.join(db, "CustomQuests", trader)
         os.makedirs(os.path.join(base, "Quests"), exist_ok=True)
-        os.makedirs(os.path.join(base, "Locales"), exist_ok=True)
         json.dump(quests, open(os.path.join(base, "Quests", "quests.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
-        json.dump(locales[trader], open(os.path.join(base, "Locales", "en.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
-        for code in sorted(set(translated) | (set(native) - {"en"})):
-            tr = translated.get(code, {})
-            loc = translations.localize(locales[trader], tr, native.get(code), native.get("en"))
-            json.dump(loc, open(os.path.join(base, "Locales", f"{code}.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
-            if code in translated:
-                done = report["translations"].setdefault(code, [0, 0])
-                done[0] += sum(1 for k, v in locales[trader].items() if v and k in tr)
-                done[1] += sum(1 for v in locales[trader].values() if v)
+        write_locales(base, locales[trader], count=True)
         if icons_used.get(trader):
             os.makedirs(os.path.join(base, "Images"), exist_ok=True)
             for icon in icons_used[trader]:
@@ -832,7 +844,7 @@ def main():
         os.makedirs(os.path.join(db, "CustomLootspawns", "CustomSpawnpointsForced"), exist_ok=True)
         json.dump(spawns_out, open(os.path.join(db, "CustomLootspawns", "CustomSpawnpointsForced", "forced.json"), "w"), indent=1)
 
-    build_optional(db)
+    build_optional(db, write_locales)
 
     report["warnings"] = ctx.warnings
     json.dump(report, open(os.path.join(OUT, "build_report.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
@@ -840,6 +852,10 @@ def main():
     print(f"custom zones: {report['zones']}  forced spawns: {report['spawns']}  warnings: {len(ctx.warnings)}")
     for code, (done, total) in report["translations"].items():
         print(f"translation {code}: {done}/{total}")
+    if report["live_translations"]:
+        print("1.0 translations from tarkov.dev: " + "  ".join(f"{c} {n}" for c, n in sorted(report["live_translations"].items())))
+    else:
+        print("no 1.0 translations in the data folder, run fetch_data.py to get them")
 
 
 main()

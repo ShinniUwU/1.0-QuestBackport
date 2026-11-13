@@ -13,6 +13,7 @@ import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import checks  # noqa: E402
+import translations  # noqa: E402
 
 DATA, SPT = sys.argv[1], sys.argv[2]
 checks.spt_runtime(SPT)
@@ -24,6 +25,9 @@ FILES = {
     "items_en.json": "regular/items_en",
     "traders.json": "regular/traders",
 }
+# 1.0 quest names and objectives in the game's other languages
+for _code in sorted(set(translations.LIVE.values())):
+    FILES[f"tasks_pve_{_code}.json"] = f"pve/tasks_{_code}"
 UA = "shinnis-questsbackport-build/0.1"
 
 os.makedirs(DATA, exist_ok=True)

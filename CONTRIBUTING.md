@@ -36,7 +36,7 @@ You only need a spreadsheet program (Excel, LibreOffice or Google Sheets).
 3. Fill in the `translation` column. Leave the `id` and `english` columns as they are
 4. Save it as CSV (UTF-8) and open a PR adding it to `translations/`, or attach it to the [translations issue](https://github.com/ShinniUwU/1.0-QuestBackport/issues/2) if you don't use git
 
-You don't have to finish it. Empty rows show up in English, and quests the mod only updates keep the game's own text in your language where 1.0 didn't change it.
+You don't have to finish it. Quest names and objectives already come from the 1.0 game in your language where it has them (via tarkov.dev), so an empty row only shows up in English when the game has no translation either. What's left for most languages is the trader briefings of the 32 new quests and the stand-in objectives. Anything you fill in wins over the game's text.
 
 When new quests come out, `python tools/translations.py` adds their rows to every language file and keeps what's already translated.
 

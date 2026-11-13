@@ -3,6 +3,7 @@
 ## 0.3.0-alpha.1 (testing, not on the Forge yet)
 
 - Update notice: logs a warning and messages players in game when a newer version is on the Forge. Both can be turned off in the new `config.json`
+- Quest names and objectives now use the 1.0 game's own translations in every language SPT has. Russian, Chinese, Spanish, Italian and Portuguese are almost complete. Briefings of the 32 new quests and the stand-in objectives stay English
 - Translations: quest text can be translated in a spreadsheet (`translations/<code>.csv`), anything untranslated falls back to English
 - Quests the mod only updates now keep the game's own text in other languages where 1.0 didn't change it, instead of switching to English
 - Builds on Linux and macOS with `tools/package.py`, and the C# part no longer needs an SPT install to compile
