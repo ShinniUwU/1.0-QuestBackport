@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Russian is now complete: trader briefings of the 32 new quests and the stand-in objectives, translated by [hekawa](https://sp-mod.com/user/56165/hekawa)
+- Removed the optional support for Wedge (Sipto). That mod only runs on SPT 4.0, so it could never load next to this one. Black Division still swaps in the real Wedge
 
 ## 0.3.0 (2026-11-13)
 
