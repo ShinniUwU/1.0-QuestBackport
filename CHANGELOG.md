@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 (2026-11-13)
 
 - A Wedge Between Us uses the real Wedge when Black Division or the Wedge mod is installed
 - With Manimal's Icebreaker Backport installed, its Icebreaker quests replace the Lighthouse stand-ins
