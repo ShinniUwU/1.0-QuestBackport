@@ -1,8 +1,8 @@
 # Build the mod and pack it as a drag-and-drop zip (SPT_Runtime/user/mods/<mod>).
-# usage: powershell -File tools\package.ps1 [-Spt C:\SPT\SPT_Runtime] [-Version 0.2.0]
+# usage: powershell -File tools\package.ps1 [-Spt C:\SPT\SPT_Runtime] [-Version 0.3.0-alpha.1]
 param(
     [string]$Spt = "C:\SPT\SPT_Runtime",
-    [string]$Version = "0.2.0"
+    [string]$Version = "0.3.0-alpha.1"
 )
 $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot
@@ -10,7 +10,7 @@ $modName = "ShinnisQuestsBackport"
 $dist = Join-Path $root "dist"
 $modDir = Join-Path $dist "SPT_Runtime\user\mods\$modName"
 
-dotnet build (Join-Path $root "src") -c Release -nologo -v q "-p:SptDir=$Spt"
+dotnet build (Join-Path $root "src") -c Release -nologo -v q
 if ($LASTEXITCODE) { throw "dotnet build failed" }
 
 if (Test-Path $modDir) { Remove-Item -Recurse -Force $modDir }
@@ -18,6 +18,7 @@ New-Item -ItemType Directory -Force $modDir | Out-Null
 python -X utf8 (Join-Path $root "tools\build.py") (Join-Path $root "data") (Join-Path $Spt "SPT_Data\database") $modDir
 if ($LASTEXITCODE) { throw "build.py failed" }
 Copy-Item (Join-Path $root "src\bin\Release\$modName.dll") $modDir
+Copy-Item (Join-Path $root "src\config.json") $modDir
 Move-Item (Join-Path $modDir "build_report.json") (Join-Path $dist "build_report.json") -Force
 
 $zip = Join-Path $dist "$modName-$Version.zip"

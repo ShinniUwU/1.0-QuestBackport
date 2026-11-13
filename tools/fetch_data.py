@@ -11,7 +11,11 @@ import re
 import sys
 import urllib.request
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import checks  # noqa: E402
+
 DATA, SPT = sys.argv[1], sys.argv[2]
+checks.spt_runtime(SPT)
 BASE = "https://json.tarkov.dev"
 FILES = {
     "tasks_pve.json": "pve/tasks",

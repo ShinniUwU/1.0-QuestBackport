@@ -7,6 +7,7 @@ using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Spt.Mod;
 using SPTarkov.Server.Core.Models.Spt.Tables;
+using SPTarkov.Server.Core.Services.Commerce;
 using Range = SemanticVersioning.Range;
 using Version = SemanticVersioning.Version;
 
@@ -18,7 +19,7 @@ public record ModMetadata : IModMetadata
     public string Name { get; init; } = "Shinni's 1.0 QuestsBackport";
     public string Author { get; init; } = "ShinniUwU";
     public List<string>? Contributors { get; init; }
-    public Version Version { get; init; } = new("0.2.0");
+    public Version Version { get; init; } = new("0.3.0-alpha.1");
     public Range SptVersion { get; init; } = new("~4.1.0");
     public List<string>? Incompatibilities { get; init; }
     public Dictionary<string, Range>? ModDependencies { get; init; } = new()
@@ -39,7 +40,8 @@ public class QuestBackportMod(
     TemplateTable templateTable,
     TradersTable tradersTable,
     ModHelper modHelper,
-    IReadOnlyList<SptMod> loadedMods
+    IReadOnlyList<SptMod> loadedMods,
+    MailSendService mailSendService
 ) : IOnLoad
 {
     private const string Tag = "[Shinni's 1.0 QuestsBackport]";
@@ -58,6 +60,15 @@ public class QuestBackportMod(
         var modDir = modHelper.GetAbsolutePathToModFolder(assembly);
         await LoadOptional(assembly, modDir);
         ReportLoaded(modDir);
+
+        var config = ModConfig.Load(Path.Combine(modDir, "config.json"), logger);
+        if (config.CheckForUpdates)
+        {
+            if (config.NotifyInGame)
+                new LoginNoticePatch().Enable();
+            // don't hold up server start waiting on the Forge
+            _ = CheckForUpdate(config);
+        }
     }
 
     private record OptionalMod(string Mod, string Name, string Note);
@@ -112,6 +123,28 @@ public class QuestBackportMod(
                 foreach (var assort in locks.Where(l => l.Value == ours).Select(l => l.Key).ToList())
                     locks[assort] = new MongoId(theirs);
             }
+        }
+    }
+
+    private async Task CheckForUpdate(ModConfig config)
+    {
+        var current = new ModMetadata().Version;
+        try
+        {
+            var newer = await UpdateCheck.GetNewerVersion(current, CancellationToken.None);
+            if (newer == null)
+                return;
+            var message = $"Shinni's 1.0 QuestsBackport {newer} is out (you have {current}). Get it at {UpdateCheck.ForgeUrl}";
+            logger.Warning($"[Shinni's 1.0 QuestsBackport] {message}");
+            if (config.NotifyInGame)
+            {
+                LoginNoticePatch.Mail = mailSendService;
+                LoginNoticePatch.Message = message;
+            }
+        }
+        catch (Exception e)
+        {
+            logger.Debug($"[Shinni's 1.0 QuestsBackport] update check failed: {e.Message}");
         }
     }
 

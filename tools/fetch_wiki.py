@@ -5,13 +5,19 @@ usage: python fetch_wiki.py <data dir> <spt database dir>
 Only quests SPT doesn't have are fetched; existing quests keep SPT's text.
 """
 import json
+import os
 import re
 import sys
 import time
 import urllib.parse
 import urllib.request
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import checks  # noqa: E402
+
 DATA, SPT_DB = sys.argv[1], sys.argv[2]
+checks.spt_database(SPT_DB)
+checks.data_files(DATA, "tasks_pve.json")
 API = "https://escapefromtarkov.fandom.com/api.php"
 UA = "QuestBackport-builder/0.1 (SPT mod build script)"
 

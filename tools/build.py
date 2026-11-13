@@ -15,8 +15,12 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from convert import MAP_SUBSTITUTES, STATUS, Ctx, convert_objective, mongo_id  # noqa: E402
+import translations  # noqa: E402
+import checks  # noqa: E402
 
 DATA, SPT_DB, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
+checks.spt_database(SPT_DB)
+checks.data_files(DATA, "wtt_ids.json", "tasks_pve.json", "tasks_pve_en.json")
 ROUBLES, DOLLARS, EUROS, GP = "5449016a4bdc2d6f028b456f", "5696686a4bdc2da3298b456a", "569668774bdc2da2298b4568", "5d235b4d86f7742e017bc88a"
 MONEY = {ROUBLES, DOLLARS, EUROS, GP}
 
@@ -777,12 +781,33 @@ def main():
         by_trader.setdefault(q["traderId"], {})[qid] = q
         locales.setdefault(q["traderId"], {}).update(loc)
 
+    translations.write_template({k: v for loc in locales.values() for k, v in loc.items() if v})
+    translated = {code: translations.read(code) for code in translations.languages()}
+    report["translations"] = {}
+    # Without a file per language WTT shows en.json to everyone, which would turn the
+    # quests we only patched from Russian, Korean etc. into English. So write every
+    # language SPT has, falling back to SPT's own text where 1.0 kept the English.
+    native_dir = os.path.join(SPT_DB, "locales", "global")
+    native = {}
+    for code in sorted(translations.LANGS | {"en"}):
+        path = os.path.join(native_dir, f"{code}.json")
+        if os.path.exists(path):
+            native[code] = json.load(open(path, encoding="utf-8"))
+
     for trader, quests in by_trader.items():
         base = os.path.join(db, "CustomQuests", trader)
         os.makedirs(os.path.join(base, "Quests"), exist_ok=True)
         os.makedirs(os.path.join(base, "Locales"), exist_ok=True)
         json.dump(quests, open(os.path.join(base, "Quests", "quests.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
         json.dump(locales[trader], open(os.path.join(base, "Locales", "en.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+        for code in sorted(set(translated) | (set(native) - {"en"})):
+            tr = translated.get(code, {})
+            loc = translations.localize(locales[trader], tr, native.get(code), native.get("en"))
+            json.dump(loc, open(os.path.join(base, "Locales", f"{code}.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+            if code in translated:
+                done = report["translations"].setdefault(code, [0, 0])
+                done[0] += sum(1 for k, v in locales[trader].items() if v and k in tr)
+                done[1] += sum(1 for v in locales[trader].values() if v)
         if icons_used.get(trader):
             os.makedirs(os.path.join(base, "Images"), exist_ok=True)
             for icon in icons_used[trader]:
@@ -813,6 +838,8 @@ def main():
     json.dump(report, open(os.path.join(OUT, "build_report.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     print(f"new quests: {len(report['new'])}  patched quests: {len(report['patched'])}  skipped: {len(report['skipped'])}")
     print(f"custom zones: {report['zones']}  forced spawns: {report['spawns']}  warnings: {len(ctx.warnings)}")
+    for code, (done, total) in report["translations"].items():
+        print(f"translation {code}: {done}/{total}")
 
 
 main()

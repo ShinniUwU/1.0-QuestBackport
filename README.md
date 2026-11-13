@@ -32,6 +32,19 @@ On startup the server log should show:
 [Shinni's 1.0 QuestsBackport] 423/423 backported quests in the database
 ```
 
+## Config
+
+`config.json` in the mod folder:
+
+- `checkForUpdates` (default `true`): on server start, checks the Forge for a newer version and logs a warning if there is one
+- `notifyInGame` (default `true`): also sends each player a system message about it when they log in, once per server run
+
+Set either to `false` to turn it off. The check is one request to sp-mod.com and gives up silently after 5 seconds.
+
+## Languages
+
+Quest text comes in English, plus any languages in [`translations/`](translations). To add yours, see [Translating](CONTRIBUTING.md#translating). All it takes is a spreadsheet.
+
 ## Compatibility
 
 - **RefFriendlyQuests** (acidphantasm): compatible. The 6 Ref quests it rewrites are skipped, and this mod loads before it, so its versions win.
@@ -71,14 +84,26 @@ Adding Icebreaker Backport to a profile that already started one of those 9 stan
 
 ## Building
 
-Needs Python 3.10+, .NET 10 SDK and an SPT 4.1 install with WTT-ContentBackport (the build reads its database and DLLs).
+Needs Python 3.10+, .NET 10 SDK and an SPT 4.1 install with WTT-ContentBackport (the build reads its quest database). The C# part compiles against NuGet packages, so `dotnet build src` works without SPT.
+
+Windows:
 
 ```
 python tools/fetch_data.py data C:\SPT\SPT_Runtime
 python tools/fetch_wiki.py data C:\SPT\SPT_Runtime\SPT_Data\database
 powershell -File tools/fetch_icons.ps1 data C:\SPT\SPT_Runtime\SPT_Data\database
-powershell -File tools/package.ps1 -Spt C:\SPT\SPT_Runtime
+python tools/package.py --spt C:\SPT\SPT_Runtime
 ```
+
+Linux and macOS:
+
+```
+python3 tools/fetch_data.py data ~/SPT/SPT_Runtime
+python3 tools/fetch_wiki.py data ~/SPT/SPT_Runtime/SPT_Data/database
+python3 tools/package.py --spt ~/SPT/SPT_Runtime
+```
+
+You can also set `SPT_DIR` instead of passing `--spt`. The quest icons are already in `data/icons`, so you only need `fetch_icons.ps1` (Windows only) when 1.0 adds new quests. `tools/package.ps1` still works on Windows if you prefer it.
 
 The zip lands in `dist/`, with `dist/build_report.json` listing every new and changed quest.
 
