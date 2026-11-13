@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Russian is now complete: trader briefings of the 32 new quests and the stand-in objectives, translated by hekawa
+
 ## 0.3.0 (2026-11-13)
 
 - Update notice: logs a warning and messages players in game when a newer version is on the Forge. Both can be turned off in the new `config.json`
