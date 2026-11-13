@@ -73,7 +73,6 @@ None of these are required. If one is loaded, the server log says so and the mat
 | Mod | What changes |
 |---|---|
 | [Black Division](https://sp-mod.com/mod/2511/wtt-black-division-redacted-home) (TacticalToaster) | A Wedge Between Us uses The Wedge and his squad instead of the Goons, and his LV-119 plate carrier as the trophy |
-| [Wedge](https://sp-mod.com/mod/2820/wedge) (Sipto) | A Wedge Between Us also counts that mod's Wedge, his guards and his plate carrier |
 | [Manimal's Icebreaker Backport](https://sp-mod.com/mod/2866/manimals-icebreaker-backport) | It ships its own versions of 9 Icebreaker quests on the real map. Ours are removed so you don't get them twice: Stick to It, Saving Private Roman, A Bitter Victory, Hangover, War Never Changes, Oil Change, Biochemistry, Peaceful Atom, Wiring the Vessel |
 
 Adding Icebreaker Backport to a profile that already started one of those 9 stand-in quests drops that quest, and you take it again from the trader in its Icebreaker version.
