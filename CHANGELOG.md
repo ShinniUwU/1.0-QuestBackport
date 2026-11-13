@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Fixes start items on 34 existing quests not matching 1.0. Fishing Gear handed out an SV-98 while the objective asked for an MF-UNTAR body armor
+- Fixes 4 stash objectives that still wanted the old item: Fishing Gear, Golden Swag and two in Bullshit
+- Balancing - Part 1 [PVE ZONE] is now updated too, so the server log counts 424 quests
+
 ## 0.3.1 (2026-11-13)
 
 - Russian is now complete: trader briefings of the 32 new quests and the stand-in objectives, translated by [hekawa](https://sp-mod.com/user/56165/hekawa)

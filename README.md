@@ -5,7 +5,7 @@ Server mod for SPT 4.1.x that brings the quests up to Escape from Tarkov 1.0 (Pv
 Download it on the [Forge](https://sp-mod.com/mod/3340/shinnis-10-questsbackport).
 
 - Adds the 32 quests from 1.0 that SPT doesn't have, with their 1.0 briefings, icons, level requirements and rewards.
-- Updates 391 existing quests to their 1.0 versions: counts, levels, maps, weapons, XP, money, item rewards, added and removed objectives. Quest ids don't change, so quests already in progress keep their progress.
+- Updates 392 existing quests to their 1.0 versions: counts, levels, maps, weapons, XP, money, item rewards, added and removed objectives. Quest ids don't change, so quests already in progress keep their progress.
 
 ## Requirements
 
@@ -29,7 +29,7 @@ Updating from an older version: delete `user/mods/ShinnisQuestsBackport` first, 
 On startup the server log should show:
 
 ```
-[Shinni's 1.0 QuestsBackport] 423/423 backported quests in the database
+[Shinni's 1.0 QuestsBackport] 424/424 backported quests in the database
 ```
 
 ## Config

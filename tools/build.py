@@ -584,7 +584,7 @@ def patch_quest(t):
         if new.get("value") is not None and old.get("value") != new["value"]:
             changes.append(f"{o['type']} count {old.get('value')}->{new['value']}")
             old["value"] = new["value"]
-        if old["conditionType"] in ("HandoverItem", "FindItem") and new["conditionType"] == old["conditionType"]:
+        if old["conditionType"] in ("HandoverItem", "FindItem", "LeaveItemAtLocation") and new["conditionType"] == old["conditionType"]:
             tgt = ctx.known(new["target"])
             if tgt and sorted(tgt) != sorted(old["target"]):
                 changes.append(f"{o['type']} items changed")
@@ -685,6 +685,74 @@ def _sync_item_rewards(q, fin, changes):
     q["rewards"]["Success"] = kept
 
 
+def _reward_roots(r):
+    """A reward's items as one list per copy: [root, child, child...]."""
+    by_parent = {}
+    for it in r["items"]:
+        by_parent.setdefault(it.get("parentId"), []).append(it)
+    ids = {it["_id"] for it in r["items"]}
+
+    def tree(root):
+        out = [root]
+        for c in by_parent.get(root["_id"], []):
+            out += tree(c)
+        return out
+    return [tree(it) for it in r["items"] if it.get("parentId") not in ids]
+
+
+def _set_count(r, count, seed):
+    """SPT stores a stack as one item, and anything that doesn't stack as one copy per count."""
+    copies = _reward_roots(r)
+    if len(copies) == 1 and len(r["items"]) == 1 and ctx.items.get(r["items"][0]["_tpl"], {}).get("_props", {}).get("StackMaxSize", 1) > 1:
+        r["items"][0].setdefault("upd", {})["StackObjectsCount"] = count
+    else:
+        for c in copies:
+            c[0].setdefault("upd", {})["StackObjectsCount"] = 1
+        while len(copies) < count:
+            copies.append(_remap_items(copies[0], (seed, "copy", len(copies))))
+        r["items"] = [it for c in copies[:count] for it in c]
+        r["target"] = r["items"][0]["_id"]
+    r["value"] = count
+
+
+def _sync_start_rewards(q, t, changes):
+    """Items handed over when the quest is accepted. 1.0 swapped many of them, often together
+    with the objective that uses them (Fishing Gear: SV-98 -> MF-UNTAR body armor)."""
+    qid = q["_id"]
+    want = {}
+    for r in (t.get("startRewards") or {}).get("items") or []:
+        want[r["item"]] = want.get(r["item"], 0) + r["count"]
+    kept = []
+    for r in q["rewards"]["Started"]:
+        if r["type"] != "Item" or not r["items"]:
+            kept.append(r)
+            continue
+        tpl = next((i["_tpl"] for i in r["items"] if i["_id"] == r["target"]), r["items"][0]["_tpl"])
+        match = tpl if tpl in want else next((w for w in want if _root_tpl(w) == tpl), None)
+        if match is None:
+            changes.append(f"-start item {tpl}")
+            continue
+        if r["value"] != want[match]:
+            changes.append(f"start item {tpl} x{r['value']}->x{want[match]}")
+            _set_count(r, want[match], (qid, "start", tpl))
+        want.pop(match)
+        kept.append(r)
+    for i, (tpl, count) in enumerate(want.items()):
+        items, root = reward_items(tpl, 1, (qid, "startsync", i))
+        if not items:
+            ctx.warn(qid, f"1.0 start item {tpl} unknown, not added")
+            continue
+        r = _base_reward("Item", mongo_id(qid, "startsync", i), findInRaid=tpl not in MONEY, isEncoded=False,
+                         items=items, target=root, value=1)
+        if count != 1:
+            _set_count(r, count, (qid, "startsync", i))
+        kept.append(r)
+        changes.append(f"+start item {tpl}")
+    for i, r in enumerate(kept):
+        r["index"] = i
+    q["rewards"]["Started"] = kept
+
+
 def _root_tpl(tpl):
     p = ctx.presets.get(tpl)
     if p:
@@ -710,6 +778,7 @@ def _patch_rewards(q, t, changes):
                 r["value"] = money[tpl]
                 r["items"][0].setdefault("upd", {})["StackObjectsCount"] = money[tpl]
     _sync_item_rewards(q, fin, changes)
+    _sync_start_rewards(q, t, changes)
     # Standing is left alone: 1.0 rescaled trader loyalty ~10x, SPT still uses the old scale.
 
 
