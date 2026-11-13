@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- A Wedge Between Us uses the real Wedge when Black Division or the Wedge mod is installed
+- With Manimal's Icebreaker Backport installed, its Icebreaker quests replace the Lighthouse stand-ins
+
 ## 0.1.1 (2026-11-13)
 
 - Fixes Reconnaissance, No Swiping, The Huntsman Path - Trophy and Payback showing no objectives and missing from the Tasks list

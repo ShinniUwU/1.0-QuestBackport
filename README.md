@@ -49,6 +49,18 @@ The 0.16.9 client SPT is built on is missing some 1.0 content, so a few objectiv
 
 Trader offers that new quests unlock are added to trader stock behind the quest, at 1.0 prices.
 
+### Optional mods
+
+None of these are required. If one is loaded, the server log says so and the matching stand-in is swapped out:
+
+| Mod | What changes |
+|---|---|
+| Black Division (TacticalToaster) | A Wedge Between Us uses The Wedge and his squad instead of the Goons, and his LV-119 plate carrier as the trophy |
+| Wedge (Sipto) | A Wedge Between Us also counts that mod's Wedge, his guards and his plate carrier |
+| [Manimal's Icebreaker Backport](https://sp-mod.com/mod/2866/manimals-icebreaker-backport) | It ships its own versions of 9 Icebreaker quests on the real map. Ours are removed so you don't get them twice: Stick to It, Saving Private Roman, A Bitter Victory, Hangover, War Never Changes, Oil Change, Biochemistry, Peaceful Atom, Wiring the Vessel |
+
+Adding Icebreaker Backport to a profile that already started one of those 9 stand-in quests drops that quest, and you take it again from the trader in its Icebreaker version.
+
 ## What it leaves alone
 
 - **Trader standing.** 1.0 rescaled trader loyalty about 10x. Standing rewards on existing quests keep SPT's values, and new quests get the 1.0 value scaled to SPT's thresholds.

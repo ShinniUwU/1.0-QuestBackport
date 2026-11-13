@@ -98,6 +98,57 @@
       "count": 1
     }
   },
+  "optional": [
+    {
+      "mod": "com.blackdiv.tacticaltoaster",
+      "name": "Black Division",
+      "note": "A Wedge Between Us uses The Wedge and his plate carrier",
+      "quests": ["69ce1cfb298a6529b30d712b"],
+      "anyLocation": true,
+      "objectives": {
+        "69ce1cfb298a6529b30d712d": {
+          "roles": ["bossWedge", "blackDivLead", "blackDivAssault", "blackDivBreacher", "blackDivSupport", "blackDivIb"],
+          "maps": []
+        }
+      }
+    },
+    {
+      "mod": "com.sipto.wedge",
+      "name": "Wedge",
+      "note": "A Wedge Between Us also counts this mod's Wedge, his guards and his plate carrier",
+      "quests": ["69ce1cfb298a6529b30d712b"],
+      "anyLocation": true,
+      "objectives": {
+        "69ce1cfb298a6529b30d712d": {
+          "roles": ["bossWedge", "blackDivLead", "blackDivAssault", "blackDivBreacher", "blackDivSupport", "blackDivIb", "wedge", "wedgeguard"],
+          "maps": []
+        },
+        "6a03343990ee160507db2294": {
+          "items": ["69e2441a18cb3157560855ec", "689479eb30cc5ba7be00f5ff"]
+        },
+        "6a033442e041f8512e182c8e": {
+          "items": ["69e2441a18cb3157560855ec", "689479eb30cc5ba7be00f5ff"]
+        }
+      }
+    },
+    {
+      "mod": "com.manimal.icebreaker",
+      "name": "Manimal's Icebreaker Backport",
+      "note": "its own Icebreaker quests replace the Lighthouse stand-ins",
+      "_replaces": "our quest id -> the id of the same quest in Icebreaker Backport 1.2.4",
+      "replaces": {
+        "69c26c07683c9831020018c7": "e857e9c34949ecbf1cf5a5b2",
+        "69c27158e350f01390049e77": "8b2b4eea617e2be2e54df123",
+        "69c277f3ea6da9c23e07f8d2": "c7a1f0b93e64d5827ab1cc40",
+        "69c2a2d004de49c8f0055a3d": "3f8d2c5a9b17e04d6ca8f312",
+        "69ce204c8702b378f9091e4b": "6a753b58478c184bd220c417",
+        "69ce1de03e15cd80bd06f6c9": "6a75661b478c184bd220c433",
+        "69ce213a298a6529b30d7134": "6a753cf3478c184bd220c426",
+        "69ce1f84ebbdbf36a200627c": "6aa83f652bec3212bf930001",
+        "69e5583240c3e6c8ba0edbd5": "6aa83f652bec3212bf930002"
+      }
+    }
+  ],
   "drop": [],
   "text": {
     "69ce1cfb298a6529b30d712d": "Locate and neutralize the Goons on Lighthouse (stand-in for The Wedge's squad on Icebreaker)",

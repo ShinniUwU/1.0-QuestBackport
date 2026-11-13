@@ -399,13 +399,14 @@ def distance_from(text):
     return int(m.group(1)) if m else 0
 
 
-def objectives_for(t, locale):
+def objectives_for(t, locale, ov=None):
+    ov = OVERRIDES if ov is None else ov
     conds = []
     for i, o in enumerate(t["objectives"]):
-        if o["id"] in OVERRIDES.get("drop", []):
+        if o["id"] in ov.get("drop", []):
             continue
         o = dict(o)
-        o.update(OVERRIDES.get("objectives", {}).get(o["id"], {}))
+        o.update(ov.get("objectives", {}).get(o["id"], {}))
         text = TEXT.get(o["id"]) or ""
         o, new_text = substitute(o, t["id"], text)
         if o is None:
@@ -421,7 +422,7 @@ def objectives_for(t, locale):
             ctx.warn(t["id"], f"objective {o['id']} type {o['type']} not convertible, dropped")
             continue
         conds.append(c)
-        locale[o["id"]] = OVERRIDES.get("text", {}).get(o["id"]) or _map_name_text(new_text or text)
+        locale[o["id"]] = ov.get("text", {}).get(o["id"]) or _map_name_text(new_text or text)
     return conds
 
 
@@ -472,10 +473,10 @@ def trader_image(trader):
     return "/files/quest/icon/59689ee586f7740d1570bbd5.jpg"
 
 
-def new_quest(t):
+def new_quest(t, ov=None):
     qid = t["id"]
     locale = {}
-    conds = objectives_for(t, locale)
+    conds = objectives_for(t, locale, ov)
     fail = []
     for i, o in enumerate(t.get("failConditions") or []):
         o, _ = substitute(dict(o), qid, TEXT.get(o["id"]) or "")
@@ -487,6 +488,8 @@ def new_quest(t):
             locale[o["id"]] = TEXT.get(o["id"]) or ""
     loc = ctx.map_id(t["map"]) if t.get("map") else "any"
     if loc != "any" and loc not in ctx.loc_by_mongo:
+        loc = "any"
+    if ov and ov.get("anyLocation"):
         loc = "any"
     first = t["objectives"][0]["type"] if t["objectives"] else ""
     q = {
@@ -687,6 +690,47 @@ def _patch_rewards(q, t, changes):
     # Standing is left alone: 1.0 rescaled trader loyalty ~10x, SPT still uses the old scale.
 
 
+# ---------------------------------------------------------------- optional mods
+
+def build_optional(db):
+    """db/Optional/<mod guid>/: quests that replace ours when that mod is loaded.
+    Mod.cs reads index.json and applies the entries in order."""
+    root = os.path.join(db, "Optional")
+    shutil.rmtree(root, ignore_errors=True)
+    entries = OVERRIDES.get("optional") or []
+    if not entries:
+        return
+    by_id = {t["id"]: t for t in tasks}
+    keep = copy.deepcopy((report, ctx.warnings))  # variant builds must not count twice
+    index, summary = [], []
+    for e in entries:
+        base = os.path.join(root, e["mod"])
+        os.makedirs(base, exist_ok=True)
+        for qid in e.get("quests", []):
+            q, locale = new_quest(by_id[qid], e)
+            d = os.path.join(base, "CustomQuests", q["traderId"])
+            for sub, name, data in (("Quests", "quests.json", {qid: q}), ("Locales", "en.json", locale)):
+                os.makedirs(os.path.join(d, sub), exist_ok=True)
+                p = os.path.join(d, sub, name)
+                old = json.load(open(p, encoding="utf-8")) if os.path.exists(p) else {}
+                old.update(data)
+                json.dump(old, open(p, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+        for qid in e.get("replaces", {}):
+            for t in tasks:
+                reqs = [r["task"] if isinstance(r["task"], str) else r["task"]["id"] for r in t.get("taskRequirements") or []]
+                if qid in reqs and t["id"] not in e["replaces"]:
+                    raise SystemExit(f"{name_of(t['id'])} needs {name_of(qid)}, which {e['mod']} replaces; remap it first")
+        if e.get("replaces"):
+            json.dump(e["replaces"], open(os.path.join(base, "replaces.json"), "w"), indent=1)
+        index.append({"mod": e["mod"], "name": e["name"], "note": e.get("note", "")})
+        summary.append({"mod": e["mod"], "quests": [name_of(q) for q in e.get("quests", [])], "replaces": [name_of(q) for q in e.get("replaces", {})]})
+    json.dump(index, open(os.path.join(root, "index.json"), "w", encoding="utf-8"), indent=1)
+    report.clear()
+    report.update(keep[0])
+    ctx.warnings[:] = keep[1]
+    report["optional"] = summary
+
+
 # ---------------------------------------------------------------- main
 
 def main():
@@ -743,6 +787,8 @@ def main():
     if spawns_out:
         os.makedirs(os.path.join(db, "CustomLootspawns", "CustomSpawnpointsForced"), exist_ok=True)
         json.dump(spawns_out, open(os.path.join(db, "CustomLootspawns", "CustomSpawnpointsForced", "forced.json"), "w"), indent=1)
+
+    build_optional(db)
 
     report["warnings"] = ctx.warnings
     json.dump(report, open(os.path.join(OUT, "build_report.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)

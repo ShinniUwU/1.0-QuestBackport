@@ -265,6 +265,9 @@ def convert_objective(o, qid, ctx, index):
         return _counter_cond(o, qid, "Completion", subs, ctx, index)
     if t == "shoot":
         target, roles = _kill_target(o.get("targetNames"), ctx, ctx.text.get(oid, ""))
+        if o.get("roles"):
+            # bot roles another mod adds; SPT's own bot list doesn't know them
+            target, roles = "Savage", list(o["roles"])
         dist = o.get("distance") or {}
         kill = {
             "bodyPart": _body_parts(o.get("bodyParts")),
