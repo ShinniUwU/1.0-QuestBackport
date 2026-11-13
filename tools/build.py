@@ -577,6 +577,13 @@ def patch_quest(t):
         if removed:
             changes.append(f"-{removed} objective(s)")
             q["conditions"]["AvailableForFinish"] = keep
+            # a kept objective can be hidden until a removed one is done; the client's quest list breaks on the missing target
+            ids = {c["id"] for c in keep}
+            for c in keep:
+                vis = c.get("visibilityConditions") or []
+                if any(v.get("target") not in ids for v in vis):
+                    c["visibilityConditions"] = [v for v in vis if v.get("target") in ids]
+                    changes.append("unhid objective that waited on a removed one")
     _patch_rewards(q, t, changes)
     if t.get("name") and TEXT.get(f"{qid} name"):
         locale[f"{qid} name"] = TEXT[f"{qid} name"]
