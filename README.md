@@ -123,4 +123,5 @@ To report a broken quest or help out, see [CONTRIBUTING.md](CONTRIBUTING.md). Mo
 - Quest data: [tarkov.dev](https://tarkov.dev) (json.tarkov.dev).
 - Briefing text: [Escape from Tarkov Wiki](https://escapefromtarkov.fandom.com), CC BY-SA 3.0.
 - Quest icons: Battlestate Games.
+- Russian briefings and stand-in objectives: [hekawa](https://sp-mod.com/user/56165/hekawa).
 - Quest, zone, loot and trader loading: [WTT-CommonLib](https://github.com/WelcomeToThursday/WTT-CommonLib).

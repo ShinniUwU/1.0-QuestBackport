@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Russian is now complete: trader briefings of the 32 new quests and the stand-in objectives, translated by hekawa
+- Russian is now complete: trader briefings of the 32 new quests and the stand-in objectives, translated by [hekawa](https://sp-mod.com/user/56165/hekawa)
 
 ## 0.3.0 (2026-11-13)
 
