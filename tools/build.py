@@ -596,6 +596,13 @@ def patch_quest(t):
             if old.get("onlyFoundInRaid") != new.get("onlyFoundInRaid"):
                 changes.append(f"FIR {old.get('onlyFoundInRaid')}->{new.get('onlyFoundInRaid')}")
                 old["onlyFoundInRaid"] = new["onlyFoundInRaid"]
+        # 1.0 moved some plant spots (Golden Swag: portable cabin -> dorm 303)
+        if old["conditionType"] in ("LeaveItemAtLocation", "PlaceBeacon") and new["conditionType"] == old["conditionType"]:
+            new_zones = [z["id"] for z in o.get("zones") or []]
+            if new_zones and old.get("zoneId") not in new_zones:
+                ensure_zones(o)
+                changes.append(f"zone {old.get('zoneId')}->{new['zoneId']}")
+                old["zoneId"] = new["zoneId"]
         if old["conditionType"] == "CounterCreator" and new["conditionType"] == "CounterCreator":
             _patch_counter(old, new, o, changes, text)
         if text:
