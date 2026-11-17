@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.3 (2026-11-17)
+
+- Fixes completing Special Order, Setting Priorities, Goals and Means and The Huntsman Path - Control. Their skill reward had no skill set, so the server threw `Value cannot be null` and gave no rewards
+- Fixes Golden Swag asking you to stash the Zibbo in the old portable cabin. It now uses Dorm room 303 like 1.0. Bullshit's stash spots move to the 1.0 spot too
+
 ## 0.3.2 (2026-11-13)
 
 - Fixes start items on 34 existing quests not matching 1.0. Fishing Gear handed out an SV-98 while the objective asked for an MF-UNTAR body armor

@@ -1,8 +1,8 @@
 # Build the mod and pack it as a drag-and-drop zip (SPT_Runtime/user/mods/<mod>).
-# usage: powershell -File tools\package.ps1 [-Spt C:\SPT\SPT_Runtime] [-Version 0.3.2]
+# usage: powershell -File tools\package.ps1 [-Spt C:\SPT\SPT_Runtime] [-Version 0.3.3]
 param(
     [string]$Spt = "C:\SPT\SPT_Runtime",
-    [string]$Version = "0.3.2"
+    [string]$Version = "0.3.3"
 )
 $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot
