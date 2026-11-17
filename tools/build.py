@@ -200,7 +200,11 @@ def convert_rewards(block, qid, stage, experience=0):
         ))
         quest_assort.setdefault(u["trader"], {}).setdefault("success", {})[aid] = qid
     for i, s in enumerate(block.get("skillLevelReward") or []):
-        skill = s.get("skill", {}).get("id") if isinstance(s.get("skill"), dict) else s.get("name")
+        sk = s.get("skill")
+        skill = sk.get("id") if isinstance(sk, dict) else sk or s.get("name")
+        if not skill:
+            ctx.warn(qid, f"{stage} skill reward {i} has no skill name, dropped")
+            continue
         out.append(_base_reward("Skill", mongo_id(qid, stage, "skill", i), target=skill, value=int(s["level"] * 100)))
     for i, tr in enumerate(block.get("traderUnlock") or []):
         tid = tr if isinstance(tr, str) else tr.get("id")
