@@ -17,6 +17,7 @@ foreach ($t in $tasks) {
     if ($spt.Contains("`"$($t.id)`":") -or -not $t.taskImageLink) { continue }
     $jpg = Join-Path $out "$($t.id).jpg"
     if (Test-Path $jpg) { continue }
+    $s = $null; $o = $null; $ok = $false
     try {
         Invoke-WebRequest -Uri $t.taskImageLink -OutFile $tmp -UseBasicParsing
         $s = [IO.File]::OpenRead($tmp)
@@ -24,10 +25,17 @@ foreach ($t in $tasks) {
         $enc = New-Object Windows.Media.Imaging.JpegBitmapEncoder
         $enc.QualityLevel = 90
         $enc.Frames.Add([Windows.Media.Imaging.BitmapFrame]::Create($frame))
-        $o = [IO.File]::Create($jpg); $enc.Save($o); $o.Close(); $s.Close()
+        $o = [IO.File]::Create($jpg); $enc.Save($o)
+        $ok = $true
         "  $($t.id) ok"
     } catch {
         "  $($t.id) failed: $($_.Exception.Message)"
+    } finally {
+        # a file left open locks _dl.webp and every later icon fails too
+        if ($o) { $o.Close() }
+        if ($s) { $s.Close() }
+        # a half-written jpg would be skipped as done on the next run
+        if (-not $ok) { Remove-Item $jpg -ErrorAction SilentlyContinue }
     }
 }
 Remove-Item $tmp -ErrorAction SilentlyContinue
