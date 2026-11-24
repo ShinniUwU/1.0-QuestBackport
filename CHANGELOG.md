@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 (2026-11-24)
 
 - Fixes quests still asking for the old weapon parts. Getting Some Air wanted the 1P78-1 scope instead of the EKP-1S-03, Power of Persuasion and Easy-Breezy wanted SR-2M and UZI PRO parts so the 1.0 weapon never counted, and Wet Job - Part 1 and The Punisher - Part 3 still wanted a suppressor
 - Fixes weapon lists that kept the old weapons next to the 1.0 ones. One-Way Ticket and The Punisher - Part 4 still took 12ga shotguns. The Punisher - Part 3 and 5 and Our Own Land now ask for their 1.0 weapons, The Good Times - Part 1 and Claustrophobia no longer ask for one
