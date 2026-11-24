@@ -5,7 +5,7 @@ Server mod for SPT 4.1.x that brings the quests up to Escape from Tarkov 1.0 (Pv
 Download it on the [Forge](https://sp-mod.com/mod/3340/shinnis-10-questsbackport).
 
 - Adds the 32 quests from 1.0 that SPT doesn't have, with their 1.0 briefings, icons, level requirements and rewards.
-- Updates 392 existing quests to their 1.0 versions: counts, levels, maps, weapons, XP, money, item rewards, added and removed objectives. Quest ids don't change, so quests already in progress keep their progress.
+- Updates 411 existing quests to their 1.0 versions: counts, levels, maps, weapons, XP, money, item rewards, added and removed objectives, and which quests and trader levels unlock them. Quest ids don't change, so quests already in progress keep their progress.
 
 ## Requirements
 
@@ -29,7 +29,7 @@ Updating from an older version: delete `user/mods/ShinnisQuestsBackport` first, 
 On startup the server log should show:
 
 ```
-[Shinni's 1.0 QuestsBackport] 424/424 backported quests in the database
+[Shinni's 1.0 QuestsBackport] 443/443 backported quests in the database
 ```
 
 ## Config
@@ -65,6 +65,8 @@ The 0.16.9 client SPT is built on is missing some 1.0 content, so a few objectiv
 | Lab (dark), Infected Factory, Ground Zero tutorial | Lab, Factory, Ground Zero |
 
 Trader offers that new quests unlock are added to trader stock behind the quest, at 1.0 prices.
+
+1.0 unlocks many quests once you've done enough quests for a trader at a loyalty level. The client can't count that, so the server keeps those quests out of the list until you have. A finished quest counts for the loyalty level it unlocks at. 1.0 doesn't say exactly what it counts, so that part is a best guess.
 
 ### Optional mods
 

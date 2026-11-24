@@ -45,6 +45,7 @@ class Ctx:
         self.bot_roles = {f[:-5] for f in os.listdir(f"{spt_db}/bots/types") if f.endswith(".json")}
         self.all_locations = set(self.loc_by_mongo.values()) - {"develop", "hideout", "Private Area", "Suburbs", "Terminal", "Town"}
         self.text = {}  # objective id -> english text, filled by the caller
+        self.categories = {}  # item id -> item category id (tarkov.dev), filled by the caller
         self.warnings = []
 
     def warn(self, qid, msg):
@@ -64,6 +65,10 @@ class Ctx:
     def known(self, ids):
         """Drop item ids neither SPT nor WTT-ContentBackport knows."""
         return [i for i in ids if i in self.known_items]
+
+    def category(self, item):
+        """Item category, which also says the equipment slot it goes in. tarkov.dev covers WTT's items too."""
+        return self.categories.get(item) or self.items.get(item, {}).get("_parent") or item
 
 
 def _cmp(v):
@@ -302,8 +307,8 @@ def convert_objective(o, qid, ctx, index):
         if phe:
             subs.append(_health_sub(phe, qid, oid))
         subs.append(kill)
-        for i, group in enumerate(o.get("wearing") or []):
-            subs.append(_equipment_sub(qid, oid, f"wear{i}", inclusive=[[g["id"] if isinstance(g, dict) else g for g in group]]))
+        for i, groups in enumerate(wearing_groups(o.get("wearing"), ctx)):
+            subs.append(_equipment_sub(qid, oid, f"wear{i}", inclusive=groups))
         not_wearing = o.get("notWearing") or []
         if not_wearing:
             subs.append(_equipment_sub(qid, oid, "notwear", exclusive=[[g["id"] if isinstance(g, dict) else g] for g in not_wearing]))
@@ -437,6 +442,17 @@ def _health_sub(he, qid, oid):
         "id": mongo_id(qid, oid, "health"),
         "time": _cmp(he.get("time")),
     }
+
+
+def wearing_groups(wearing, ctx):
+    """tarkov.dev flattens BSG's Equipment conditions into one list of item groups, so "a beanie and
+    sunglasses" (two conditions) and "any gas mask" (one) look alike. Items for the same slot can't be
+    worn together, so groups that fill the same slots are alternatives within one condition."""
+    by_slots = {}
+    for group in wearing or []:
+        ids = [g["id"] if isinstance(g, dict) else g for g in group]
+        by_slots.setdefault(tuple(sorted({ctx.category(i) for i in ids})), []).append(ids)
+    return list(by_slots.values())
 
 
 def _equipment_sub(qid, oid, tag, inclusive=None, exclusive=None):

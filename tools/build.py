@@ -14,7 +14,8 @@ import shutil
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from convert import MAP_SUBSTITUTES, STATUS, Ctx, convert_objective, mongo_id  # noqa: E402
+from convert import (MAP_SUBSTITUTES, STATUS, Ctx, _equipment_sub, _location_sub, _zone_ids,  # noqa: E402
+                     convert_objective, mongo_id, wearing_groups)
 import translations  # noqa: E402
 import checks  # noqa: E402
 
@@ -39,6 +40,15 @@ OVERRIDES = json.load(open(os.path.join(os.path.dirname(__file__), "overrides.js
 tasks = json.load(open(f"{DATA}/tasks_pve.json", encoding="utf-8"))["data"]["tasks"]
 tasks = tasks if isinstance(tasks, list) else list(tasks.values())
 TASK_IDS = {t["id"] for t in tasks}
+# 1.0 unlocks many quests once N quests are done for a trader at a loyalty level. Each trader has one
+# counter per level, and their ids sort LL1..LL4 (this matches the wiki of every new quest that has one).
+_counters = {}
+for _t in tasks:
+    for _r in _t.get("otherRequirements") or []:
+        if _r.get("type") == "globalVariable":
+            _counters.setdefault(_t["trader"], set()).add(_r["variableId"])
+COUNTER_LL = {v: i + 1 for vs in _counters.values() for i, v in enumerate(sorted(vs))}
+QUEST_LOCKS = {}  # quest -> {trader, level, count}; Mod.cs hides the quest until that many are done
 
 # RefFriendlyQuests (acidphantasm) rewrites these Ref quests at PostLoad + 14, after us.
 # Leave them alone so its versions are the ones players get.
@@ -68,6 +78,9 @@ def spt_standing(trader, value):
 td_items = json.load(open(f"{DATA}/items.json", encoding="utf-8"))["data"]
 td_items = td_items.get("items", td_items)
 td_items = td_items if isinstance(td_items, dict) else {x["id"]: x for x in td_items}
+ctx.categories = {i: x["categories"][0] for i, x in td_items.items() if x.get("categories")}
+# SPT's English text, to tell an objective 1.0 reworded from one it only renamed a zone of
+SPT_TEXT = json.load(open(f"{SPT_DB}/locales/global/en.json", encoding="utf-8"))
 traders_assort = {}
 for tid in os.listdir(f"{SPT_DB}/traders"):
     p = f"{SPT_DB}/traders/{tid}/assort.json"
@@ -407,6 +420,13 @@ def distance_from(text):
     return int(m.group(1)) if m else 0
 
 
+def text_distance(o, text):
+    """tarkov.dev sometimes reports 0 for a kill distance the text still has ("from over 50 meters")."""
+    d = distance_from(text)
+    if o["type"] == "shoot" and d and not (o.get("distance") or {}).get("value"):
+        o["distance"] = {"compareMethod": ">=", "value": d}
+
+
 def objectives_for(t, locale, ov=None):
     ov = OVERRIDES if ov is None else ov
     conds = []
@@ -420,9 +440,7 @@ def objectives_for(t, locale, ov=None):
         if o is None:
             continue
         o["_oneSession"] = one_session(text)
-        d = distance_from(text)
-        if o["type"] == "shoot" and d and not (o.get("distance") or {}).get("value"):
-            o["distance"] = {"compareMethod": ">=", "value": d}
+        text_distance(o, text)
         ensure_zones(o)
         ensure_spawns(o, t["id"])
         c = convert_objective(o, t["id"], ctx, len(conds))
@@ -445,12 +463,15 @@ def start_conditions(t):
     if t.get("minPlayerLevel"):
         out.append({"compareMethod": ">=", "conditionType": "Level", "dynamicLocale": False, "globalQuestCounterId": "",
                     "id": mongo_id(t["id"], "level"), "index": 0, "parentId": "", "value": t["minPlayerLevel"], "visibilityConditions": []})
+    # one unlock delay per quest in 1.0 (Sensory Analysis - Part 1: 30-35 min after the previous quest)
+    delay = t.get("availableDelaySecondsMin") or 0
+    spread = max((t.get("availableDelaySecondsMax") or 0) - delay, 0)
     for r in t.get("taskRequirements") or []:
         target = r["task"] if isinstance(r["task"], str) else r["task"]["id"]
         if target in SKIP or (target not in ctx.quests and target not in TASK_IDS):
             ctx.warn(t["id"], f"prerequisite {target} not available, dropped")
             continue
-        out.append({"availableAfter": 0, "conditionType": "Quest", "dispersion": 0, "dynamicLocale": False, "globalQuestCounterId": "",
+        out.append({"availableAfter": delay, "conditionType": "Quest", "dispersion": spread, "dynamicLocale": False, "globalQuestCounterId": "",
                     "id": mongo_id(t["id"], "req", target), "index": len(out), "parentId": "",
                     "status": sorted({STATUS[s] for s in r.get("status") or ["complete"]}), "target": target, "visibilityConditions": []})
     for r in t.get("traderRequirements") or []:
@@ -462,21 +483,22 @@ def start_conditions(t):
             out.append({"compareMethod": r.get("compareMethod", ">="), "conditionType": "TraderStanding", "dynamicLocale": False,
                         "globalQuestCounterId": "", "id": mongo_id(t["id"], "standing", r["trader"]), "index": len(out), "parentId": "",
                         "target": r["trader"], "value": spt_standing(r["trader"], r["value"]), "visibilityConditions": []})
-    # 1.0 unlocks these after a number of quests done at a trader loyalty level. The 0.16.9 client
-    # can't count that, so gate on the loyalty level itself (from the wiki infobox).
+    # 1.0 unlocks these after a number of quests done at a trader loyalty level. The client gets the
+    # loyalty level, the server (Mod.cs) counts the quests.
     for r in t.get("otherRequirements") or []:
         if r.get("type") != "globalVariable":
             continue
-        ll = WIKI.get(t["id"], {}).get("loyalty")
-        if ll is None:
-            ctx.warn(t["id"], "unlock requirement unknown (run fetch_wiki.py), quest is available from the start")
-        elif ll > 1:
+        ll = COUNTER_LL[r["variableId"]]
+        wiki = WIKI.get(t["id"], {}).get("loyalty")
+        if wiki is not None and wiki != ll:
+            ctx.warn(t["id"], f"wiki says LL{wiki}, its quest counter says LL{ll}; using LL{ll}")
+        if ll > 1:
             out.append({"compareMethod": ">=", "conditionType": "TraderLoyalty", "dynamicLocale": False, "globalQuestCounterId": "",
                         "id": mongo_id(t["id"], "loyalty", r["id"]), "index": len(out), "parentId": "",
                         "target": t["trader"], "value": ll, "visibilityConditions": []})
-            report["notes"].append(f"{name_of(t['id'])}: unlocks at {t['trader'][:6]} LL{ll} (1.0 also wants {r.get('value')} quests done at that level)")
-        else:
-            report["notes"].append(f"{name_of(t['id'])}: 1.0 wants {r.get('value')} LL1 quests done for {t['trader'][:6]}, not portable, available from the start")
+        if r.get("compareMethod", ">=") != ">=":
+            ctx.warn(t["id"], f"quest counter compares with {r['compareMethod']}, treated as >=")
+        QUEST_LOCKS[t["id"]] = {"trader": t["trader"], "level": ll, "count": r.get("value") or 0}
     return out
 
 
@@ -500,6 +522,12 @@ def trader_image(trader):
     return "/files/quest/icon/59689ee586f7740d1570bbd5.jpg"
 
 
+def quest_location(t):
+    """The map a quest is listed under, "any" when it spans several."""
+    loc = ctx.map_id(t["map"]) if t.get("map") else "any"
+    return loc if loc in ctx.loc_by_mongo else "any"
+
+
 def new_quest(t, ov=None):
     qid = t["id"]
     locale = {}
@@ -513,11 +541,7 @@ def new_quest(t, ov=None):
         if c:
             fail.append(c)
             locale[o["id"]] = TEXT.get(o["id"]) or ""
-    loc = ctx.map_id(t["map"]) if t.get("map") else "any"
-    if loc != "any" and loc not in ctx.loc_by_mongo:
-        loc = "any"
-    if ov and ov.get("anyLocation"):
-        loc = "any"
+    loc = "any" if ov and ov.get("anyLocation") else quest_location(t)
     first = t["objectives"][0]["type"] if t["objectives"] else ""
     q = {
         "QuestName": name_of(qid), "_id": qid,
@@ -563,23 +587,35 @@ def patch_quest(t):
         if c["conditionType"] == "Level" and t.get("minPlayerLevel") and c["value"] != t["minPlayerLevel"]:
             changes.append(f"level {c['value']}->{t['minPlayerLevel']}")
             c["value"] = t["minPlayerLevel"]
+    _patch_unlocks(q, t, changes)
+    # the map the quest is listed under (Administrator moved from Streets to Reserve).
+    # BSG lists transit quests under "marathon", which tarkov.dev reports as any.
+    loc = quest_location(t)
+    if q.get("location") not in ("marathon", loc):
+        changes.append(f"listed on {ctx.loc_by_mongo.get(q['location'], q['location'])}->{ctx.loc_by_mongo.get(loc, loc)}")
+        q["location"] = loc
     locale = {}
     td_ids = set()
     for i, o in enumerate(t["objectives"]):
+        if o["id"] in OVERRIDES.get("drop", []):
+            continue
+        o = {**o, **OVERRIDES.get("objectives", {}).get(o["id"], {})}
         td_ids.add(o["id"])
         text = TEXT.get(o["id"]) or ""
+        shown = OVERRIDES.get("text", {}).get(o["id"])
         old = by_id.get(o["id"])
         if old is None:
             o2, new_text = substitute(dict(o), qid, text)
             if o2 is None:
                 continue
             o2["_oneSession"] = one_session(text)
+            text_distance(o2, text)
             ensure_zones(o2)
             ensure_spawns(o2, qid)
             c = convert_objective(o2, qid, ctx, len(q["conditions"]["AvailableForFinish"]))
             if c:
                 q["conditions"]["AvailableForFinish"].append(c)
-                locale[o["id"]] = _map_name_text(new_text or text)
+                locale[o["id"]] = shown or _map_name_text(new_text or text)
                 changes.append(f"+objective {o['type']}")
             continue
         new = convert_objective({**o, "_oneSession": old.get("oneSessionOnly", False)}, qid, ctx, old.get("index", i))
@@ -593,9 +629,23 @@ def patch_quest(t):
             if tgt and sorted(tgt) != sorted(old["target"]):
                 changes.append(f"{o['type']} items changed")
                 old["target"] = tgt
-            if old.get("onlyFoundInRaid") != new.get("onlyFoundInRaid"):
-                changes.append(f"FIR {old.get('onlyFoundInRaid')}->{new.get('onlyFoundInRaid')}")
-                old["onlyFoundInRaid"] = new["onlyFoundInRaid"]
+            # tarkov.dev has Trophies' dog tags as not found in raid; its 1.0 text still asks for it
+            fir = bool(new.get("onlyFoundInRaid")) or "found in raid" in text.lower()
+            if old.get("onlyFoundInRaid") != fir:
+                changes.append(f"FIR {old.get('onlyFoundInRaid')}->{fir}")
+                old["onlyFoundInRaid"] = fir
+        # "sell any backpacks" lists gained 1.0's new items. Only add: tarkov.dev's lists are partial.
+        if old["conditionType"] == "SellItemToTrader" and new["conditionType"] == old["conditionType"]:
+            extra = [i for i in ctx.known(new["target"]) if i not in old["target"]]
+            if extra:
+                changes.append(f"+{len(extra)} items to sell")
+                old["target"] = old["target"] + extra
+        # Sew it Good dropped its armor durability ranges, Trophies takes level 20+ dog tags
+        if old["conditionType"] in ("HandoverItem", "FindItem") and new["conditionType"] == old["conditionType"]:
+            for k in ("minDurability", "maxDurability", "dogtagLevel"):
+                if old.get(k, new[k]) != new[k]:
+                    changes.append(f"{k} {old[k]}->{new[k]}")
+                    old[k] = new[k]
         # 1.0 moved some plant spots (Golden Swag: portable cabin -> dorm 303)
         if old["conditionType"] in ("LeaveItemAtLocation", "PlaceBeacon") and new["conditionType"] == old["conditionType"]:
             new_zones = [z["id"] for z in o.get("zones") or []]
@@ -604,9 +654,20 @@ def patch_quest(t):
                 changes.append(f"zone {old.get('zoneId')}->{new['zoneId']}")
                 old["zoneId"] = new["zoneId"]
         if old["conditionType"] == "CounterCreator" and new["conditionType"] == "CounterCreator":
-            _patch_counter(old, new, o, changes, text)
-        if text:
-            locale[o["id"]] = text
+            # tarkov.dev only says "in one raid" in the text (Stray Dogs, Administrator)
+            if one_session(text) and not old.get("oneSessionOnly"):
+                changes.append("in one raid")
+                old["oneSessionOnly"] = True
+            _patch_counter(qid, old, new, o, changes, text)
+        # 1.0 eased most Gunsmith specs (Gunsmith Master - Part 4: ergonomics 70->53, recoil 250->300)
+        if old["conditionType"] == "WeaponAssembly" and new["conditionType"] == "WeaponAssembly":
+            attrs = o.get("buildAttributes") or {}
+            for k, key in BUILD_ATTRS.items():
+                if attrs.get(k) and new[key] != old.get(key):
+                    changes.append(f"{k} {(old.get(key) or {}).get('value')}->{new[key]['value']}")
+                    old[key] = new[key]
+        if shown or text:
+            locale[o["id"]] = shown or _map_name_text(text)
     # objectives 1.0 removed
     if td_ids:
         keep = [c for c in q["conditions"]["AvailableForFinish"] if c["id"] in td_ids or c["id"] in {x for x in locale}]
@@ -627,8 +688,86 @@ def patch_quest(t):
     return q, locale, changes
 
 
-def _patch_counter(old, new, o, changes, text=""):
-    olds = {sc["conditionType"]: sc for sc in old["counter"]["conditions"]}
+TRADER_NAME = {tid: nick for nick, tid in _nick.items()}
+
+
+def _unlock_name(c):
+    if c["conditionType"] == "Quest":
+        return name_of(c["target"])
+    trader = TRADER_NAME.get(c["target"], c["target"][:6])
+    if c["conditionType"] == "TraderLoyalty":
+        return f"{trader} LL{c['value']}"
+    return f"{trader} standing {c['compareMethod']}{c['value']}"
+
+
+def _unlock_sig(c):
+    return sorted(c.get("status") or []), c.get("availableAfter") or 0, c.get("dispersion") or 0, c.get("compareMethod"), c.get("value")
+
+
+def _patch_unlocks(q, t, changes):
+    """1.0's prerequisite quests, trader loyalty and standing gates and unlock delays, keeping SPT's ids.
+    Quests 1.0 unlocks once enough quests are done at a loyalty level also land in QUEST_LOCKS."""
+    start = q["conditions"]["AvailableForStart"]
+    before = {(c["conditionType"], c.get("target")): copy.deepcopy(c) for c in start}
+    old = {(c["conditionType"], c.get("target")): c for c in start}
+    out = [c for c in start if c["conditionType"] == "Level"]
+    for c in start_conditions(t):
+        if c["conditionType"] == "Level":
+            continue
+        key = (c["conditionType"], c["target"])
+        prev = old.get(key)
+        if prev is None:
+            changes.append(f"unlock +{_unlock_name(c)}")
+        else:
+            # SPT's standing values stay: they're the same as 1.0's where both have one
+            for k in ("status", "availableAfter", "dispersion", "compareMethod") + (("value",) if c["conditionType"] == "TraderLoyalty" else ()):
+                if k in c:
+                    prev[k] = c[k]
+            if _unlock_sig(prev) != _unlock_sig(before[key]):
+                changes.append(f"unlock changed {_unlock_name(prev)}")
+            c = prev
+        out.append(c)
+    kept = {(c["conditionType"], c.get("target")) for c in out}
+    for key, c in before.items():
+        if key not in kept:
+            changes.append(f"unlock -{_unlock_name(c)}")
+    if t["id"] in QUEST_LOCKS:
+        changes.append(f"unlock after {QUEST_LOCKS[t['id']]['count']} quests at LL{QUEST_LOCKS[t['id']]['level']}")
+    for i, c in enumerate(out):
+        c["index"] = i
+    q["conditions"]["AvailableForStart"] = out
+
+
+BUILD_ATTRS = {k: k for k in ("durability", "effectiveDistance", "ergonomics", "height", "magazineCapacity",
+                              "muzzleVelocity", "recoil", "weight", "width")} | {"accuracy": "baseAccuracy"}
+
+
+# the 1.0 text still asks for a weapon part, a spot on the map, or names the maps
+MOD_WORDS = re.compile(r"suppress|silenc|scope|sight|muzzle|barrel|stock|foregrip|tactical device", re.I)
+PLACE_WORDS = re.compile(r"\b(?:at|inside|around|near|along|in) the\b", re.I)
+MAP_WORDS = {"bigmap": "customs", "Woods": "woods", "Shoreline": "shoreline", "Interchange": "interchange",
+             "RezervBase": "reserve", "Lighthouse": "lighthouse", "TarkovStreets": "streets of tarkov",
+             "Sandbox": "ground zero", "Sandbox_high": "ground zero", "laboratory": "the lab",
+             "factory4_day": "factory", "factory4_night": "factory", "Labyrinth": "labyrinth"}
+
+
+def _groups(groups):
+    return sorted(tuple(sorted(g)) for g in groups)
+
+
+def _ids(group):
+    return [g["id"] if isinstance(g, dict) else g for g in group]
+
+
+def _reworded(oid, text):
+    """1.0 changed what the objective says, not just the id of a zone behind the same words."""
+    old = SPT_TEXT.get(oid)
+    return bool(text and old) and old != text
+
+
+def _patch_counter(qid, old, new, o, changes, text=""):
+    subs = old["counter"]["conditions"]
+    olds = {sc["conditionType"]: sc for sc in subs}
     for sc in new["counter"]["conditions"]:
         prev = olds.get(sc["conditionType"])
         if prev is None:
@@ -637,24 +776,157 @@ def _patch_counter(old, new, o, changes, text=""):
             changes.append(f"map {prev['target']}->{sc['target']}")
             prev["target"] = sc["target"]
         if sc["conditionType"] in ("Kills", "Shots"):
-            # union, so weapons other mods add (RefFriendlyQuests, WTT) survive
-            merged = list(dict.fromkeys((prev.get("weapon") or []) + sc["weapon"]))
-            if prev.get("weapon") and len(merged) != len(prev["weapon"]):
-                changes.append("weapon list updated")
-                prev["weapon"] = merged
-            if sorted(sc["bodyPart"]) != sorted(prev.get("bodyPart") or []):
-                changes.append(f"body parts {prev.get('bodyPart')}->{sc['bodyPart']}")
-                prev["bodyPart"] = sc["bodyPart"]
-            if sc["distance"]["value"] and sc["distance"] != prev.get("distance"):
-                changes.append(f"distance ->{sc['distance']['value']}")
-                prev["distance"] = sc["distance"]
-            # tarkov.dev collapses some targets to "Any"; only trust specific ones
-            # tarkov.dev reports both "any target" and some specific kills as "Any";
-            # only trust "Any" when the 1.0 objective text says so too.
-            trusted = sc["target"] != "Any" or "any target" in text.lower()
-            if trusted and (sc["target"], sc["savageRole"]) != (prev.get("target"), prev.get("savageRole")):
-                changes.append(f"target {prev.get('target')}{prev.get('savageRole') or ''}->{sc['target']}{sc['savageRole'] or ''}")
-                prev["target"], prev["savageRole"] = sc["target"], sc["savageRole"]
+            _patch_kill(prev, sc, o, changes, text)
+    if o["type"] == "shoot":
+        _patch_gear(qid, subs, o, changes, text)
+        _patch_kill_zone(qid, subs, o, changes, text)
+    _patch_place(subs, o, changes, text)
+    # after the zones: a kill zone 1.0 dropped may have been all that held the map
+    _patch_map(qid, subs, o, changes, text)
+
+
+def _patch_kill(prev, sc, o, changes, text):
+    # 1.0 swapped many weapons (One-Way Ticket: 12ga shotguns -> AUG). SPT's extras stay only when
+    # tarkov.dev doesn't know the item (event melee, the GP-34), since 1.0's list couldn't name it.
+    if sc["weapon"]:
+        weapons = list(dict.fromkeys(sc["weapon"] + [w for w in prev.get("weapon") or [] if w not in td_items]))
+        if sorted(weapons) != sorted(prev.get("weapon") or []):
+            changes.append("weapon list updated")
+            prev["weapon"] = weapons
+    # The Good Times - Part 1 no longer wants an M4A1, Claustrophobia no longer wants a shotgun
+    elif prev.get("weapon") and _reworded(o["id"], text) and not re.search(r"\b(?:with|using)\b", text, re.I):
+        changes.append("weapon list removed")
+        prev["weapon"] = []
+    # the sight on Getting Some Air, the suppressor Wet Job - Part 1 no longer wants
+    have = prev.get("weaponModsInclusive") or []
+    mods = sc["weaponModsInclusive"]
+    if mods:
+        mods = mods + [g for g in have if g and not any(m in td_items for m in g) and g not in mods]
+        if _groups(mods) != _groups(have):
+            changes.append("weapon mods updated")
+            prev["weaponModsInclusive"] = mods
+    elif not o.get("usingWeaponMods") and any(have) and text and not MOD_WORDS.search(text):
+        changes.append("weapon mods removed")
+        prev["weaponModsInclusive"] = []
+    if sorted(sc["bodyPart"]) != sorted(prev.get("bodyPart") or []):
+        changes.append(f"body parts {prev.get('bodyPart')}->{sc['bodyPart']}")
+        prev["bodyPart"] = sc["bodyPart"]
+    # tarkov.dev sometimes reports 0 for a distance the text still has ("from over 50 meters")
+    dist = sc["distance"] if sc["distance"]["value"] else {"compareMethod": ">=", "value": distance_from(text)}
+    # only drop a limit when the 1.0 text agrees (Tarkov Shooter - Part 4 lost its 80 m)
+    old_dist = (prev.get("distance") or {}).get("value") or 0
+    if (dist["value"] or (text and old_dist)) and dist != prev.get("distance"):
+        changes.append(f"distance {old_dist}->{dist['value']}")
+        prev["distance"] = dist
+    # tarkov.dev reports both "any target" and some specific kills as "Any";
+    # only trust "Any" when the 1.0 objective text says so too.
+    trusted = sc["target"] != "Any" or "any target" in text.lower()
+    if trusted and (sc["target"], sc["savageRole"]) != (prev.get("target"), prev.get("savageRole")):
+        changes.append(f"target {prev.get('target')}{prev.get('savageRole') or ''}->{sc['target']}{sc['savageRole'] or ''}")
+        prev["target"], prev["savageRole"] = sc["target"], sc["savageRole"]
+
+
+def _patch_map(qid, subs, o, changes, text):
+    """Add or drop the map limit. tarkov.dev also lists where a boss spawns, so a map is only added
+    when the 1.0 text names it, and only dropped when 1.0 lists no map at all."""
+    if any(s["conditionType"] in ("InZone", "VisitPlace", "LaunchFlare", "ExitName") for s in subs):
+        return  # the zone or exit already pins the map
+    loc = next((s for s in subs if s["conditionType"] == "Location"), None)
+    want = _location_sub(o, qid, ctx)
+    low = text.lower()
+    if loc is None and want and all(MAP_WORDS.get(n, "\0") in low for n in want[0]["target"]):
+        subs.append(want[0])
+        changes.append(f"map any->{want[0]['target']}")
+    elif loc is not None and text and not o.get("maps") and not any(w in low for w in MAP_WORDS.values()):
+        subs.remove(loc)
+        changes.append(f"map {loc['target']}->any")
+
+
+def _patch_gear(qid, subs, o, changes, text):
+    """Gear the player has to wear or must not wear (Punisher - Part 4 no longer wants a balaclava)."""
+    eq = [s for s in subs if s["conditionType"] == "Equipment"]
+    inc = [s for s in eq if s.get("equipmentInclusive")]
+    want = [g for g in (ctx.known(_ids(grp)) for grp in o.get("wearing") or []) if g]
+    have = [g for s in inc for g in s["equipmentInclusive"]]
+    if want and _groups(want) != _groups(have):
+        at = subs.index(inc[0]) if inc else len(subs)
+        for s in inc:
+            subs.remove(s)
+        for i, groups in enumerate(wearing_groups(want, ctx)):
+            s = copy.deepcopy(inc[i]) if i < len(inc) else _equipment_sub(qid, o["id"], f"wear{i}")
+            s["equipmentInclusive"] = groups
+            subs.insert(at + i, s)
+        changes.append("gear to wear updated")
+    elif not o.get("wearing") and inc and text and "wear" not in text.lower():
+        for s in inc:
+            subs.remove(s)
+        changes.append("gear to wear removed")
+    # Unprotected but Dangerous now bans plate carriers too
+    exc = [s for s in eq if s.get("equipmentExclusive")]
+    had = [g for s in exc for g in s["equipmentExclusive"]]
+    banned = ctx.known(_ids(o.get("notWearing") or []))
+    if banned and all(len(g) == 1 for g in had):
+        banned = list(dict.fromkeys(banned + [g[0] for g in had if g[0] not in td_items]))
+        if sorted(banned) != sorted(g[0] for g in had):
+            if exc:
+                exc[0]["equipmentExclusive"] = [[i] for i in banned]
+                for s in exc[1:]:
+                    subs.remove(s)
+            else:
+                subs.append(_equipment_sub(qid, o["id"], "notwear", exclusive=[[i] for i in banned]))
+            changes.append("gear not to wear updated")
+
+
+SAME_MAP = {"factory4_night": "factory4_day", "Sandbox_high": "Sandbox"}
+
+
+def _maps_of(names):
+    return {SAME_MAP.get(n, n) for n in names}
+
+
+def _spt_maps(qid, oid):
+    """The maps an objective is on in SPT: its Location, else the quest's own map."""
+    q = ctx.quests[qid]
+    c = next((c for c in q["conditions"]["AvailableForFinish"] if c["id"] == oid), {})
+    loc = next((s for s in c.get("counter", {}).get("conditions", []) if s["conditionType"] == "Location"), None)
+    if loc:
+        return _maps_of(loc["target"])
+    name = ctx.loc_by_mongo.get(q.get("location"))
+    return _maps_of([name]) if name else set()
+
+
+def _patch_kill_zone(qid, subs, o, changes, text):
+    """Where kills count. Only when 1.0 reworded the objective, some zones were just renamed.
+    SPT's zone stays next to 1.0's so nothing that counts today stops counting, unless the
+    objective moved to another map (Administrator: Pinewood hotel -> Reserve train depot)."""
+    if not _reworded(o["id"], text):
+        return
+    zone = next((s for s in subs if s["conditionType"] == "InZone"), None)
+    want = _zone_ids(o)
+    if want:
+        same_map = _spt_maps(qid, o["id"]) <= _maps_of(ctx.location_names([z["map"] for z in o["zones"]]))
+        ids = list(dict.fromkeys((zone["zoneIds"] if zone and same_map else []) + want))
+        if zone is None or ids != zone["zoneIds"]:
+            ensure_zones(o)
+            changes.append(f"kill zone {zone['zoneIds'] if zone else 'any'}->{ids}")
+            if zone is None:
+                subs.append({"conditionType": "InZone", "dynamicLocale": False, "id": mongo_id(qid, o["id"], "inzone"), "zoneIds": ids})
+            else:
+                zone["zoneIds"] = ids
+    elif zone and not PLACE_WORDS.search(text):
+        subs.remove(zone)
+        changes.append(f"kill zone {zone['zoneIds']}->any")
+
+
+def _patch_place(subs, o, changes, text):
+    """A visit or flare spot 1.0 moved (Administrator: Pinewood hotel -> Reserve train depot)."""
+    want = _zone_ids(o)
+    for ct in ("VisitPlace", "LaunchFlare"):
+        mine = [s for s in subs if s["conditionType"] == ct]
+        if len(mine) == 1 and len(want) == 1 and mine[0]["target"] != want[0] and _reworded(o["id"], text):
+            ensure_zones(o)
+            changes.append(f"zone {mine[0]['target']}->{want[0]}")
+            mine[0]["target"] = want[0]
 
 
 def _sync_item_rewards(q, fin, changes):
@@ -835,6 +1107,50 @@ def build_optional(db, write_locales):
     report["optional"] = summary
 
 
+def write_tiers(db, by_trader):
+    """db/QuestTiers.json for Mod.cs: the quests 1.0 unlocks once N quests are done for a trader at a
+    loyalty level, and per trader and level the quests that count, by the level they unlock at."""
+    final = dict(ctx.quests)
+    for quests in by_trader.values():
+        final.update(quests)
+    counted = {}
+    for qid, q in final.items():
+        if qid in SKIP:
+            continue
+        lock = QUEST_LOCKS.get(qid)
+        own = [c["value"] for c in q["conditions"]["AvailableForStart"] if c["conditionType"] == "TraderLoyalty" and c["target"] == q["traderId"]]
+        ll = lock["level"] if lock else max([1] + own)
+        counted.setdefault(q["traderId"], {}).setdefault(str(ll), []).append(qid)
+    # play it through: every quest has to unlock at some point
+    req = {qid: [c["target"] for c in q["conditions"]["AvailableForStart"] if c["conditionType"] == "Quest"] for qid, q in final.items()}
+    done, grew = set(), True
+    while grew:
+        grew = False
+        for qid, rs in req.items():
+            if qid in done or not all(r in done for r in rs):
+                continue
+            lock = QUEST_LOCKS.get(qid)
+            if lock and sum(x in done for x in counted.get(lock["trader"], {}).get(str(lock["level"]), [])) < lock["count"]:
+                continue
+            done.add(qid)
+            grew = True
+    for qid in final:
+        if qid not in done:
+            ctx.warn(qid, f"{name_of(qid)} can never unlock")
+    # a 1.0 prerequisite SPT didn't have must not be a quest players can fail for good (a branch they
+    # didn't pick), or profiles that failed it lose the quest
+    failable = {qid for qid, q in final.items() if q["conditions"].get("Fail") and not q.get("restartable")}
+    failable |= {c["target"] for q in final.values() for c in q["conditions"].get("Fail") or [] if c.get("conditionType") == "Quest"}
+    for qid, q in final.items():
+        before = {c["target"] for c in (ctx.quests.get(qid) or {}).get("conditions", {}).get("AvailableForStart", []) if c["conditionType"] == "Quest"}
+        for c in q["conditions"]["AvailableForStart"]:
+            if c["conditionType"] == "Quest" and qid in ctx.quests and c["target"] not in before and c["target"] in failable and 5 not in c["status"]:
+                ctx.warn(qid, f"{name_of(qid)} now needs {name_of(c['target'])}, which can be failed for good")
+    locks = {qid: QUEST_LOCKS[qid] for qid in sorted(QUEST_LOCKS) if qid in final}
+    json.dump({"locks": locks, "counted": counted}, open(os.path.join(db, "QuestTiers.json"), "w"), indent=1)
+    report["tiers"] = len(locks)
+
+
 # ---------------------------------------------------------------- main
 
 def main():
@@ -911,6 +1227,7 @@ def main():
     side = {"usecOnlyQuests": [t["id"] for t in tasks if t.get("factionName") == "USEC" and t["id"] not in ctx.quests and t["id"] not in SKIP],
             "bearOnlyQuests": [t["id"] for t in tasks if t.get("factionName") == "BEAR" and t["id"] not in ctx.quests and t["id"] not in SKIP]}
     json.dump(side, open(os.path.join(db, "CustomQuests", "QuestSideData.json"), "w"), indent=1)
+    write_tiers(db, by_trader)
 
     shutil.rmtree(os.path.join(db, "CustomAssortSchemes"), ignore_errors=True)
     if new_assorts:
@@ -930,6 +1247,7 @@ def main():
     json.dump(report, open(os.path.join(OUT, "build_report.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     print(f"new quests: {len(report['new'])}  patched quests: {len(report['patched'])}  skipped: {len(report['skipped'])}")
     print(f"custom zones: {report['zones']}  forced spawns: {report['spawns']}  warnings: {len(ctx.warnings)}")
+    print(f"quests unlocked by quests done at a loyalty level: {report['tiers']}")
     for code, (done, total) in report["translations"].items():
         print(f"translation {code}: {done}/{total}")
     if report["live_translations"]:

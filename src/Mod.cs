@@ -3,6 +3,7 @@ using System.Text.Json;
 using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
+using SPTarkov.Server.Core.Helpers.Profile;
 using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Spt.Mod;
@@ -41,13 +42,16 @@ public class QuestBackportMod(
     TradersTable tradersTable,
     ModHelper modHelper,
     IReadOnlyList<SptMod> loadedMods,
-    MailSendService mailSendService
+    MailSendService mailSendService,
+    ProfileHelper profileHelper
 ) : IOnLoad
 {
     private const string Tag = "[Shinni's 1.0 QuestsBackport]";
 
     // our quests that another mod's own version replaced
     private readonly HashSet<string> _replaced = [];
+
+    private QuestTiers<MongoId>? _tiers;
 
     public async Task OnLoadAsync(CancellationToken cancellationToken)
     {
@@ -58,8 +62,17 @@ public class QuestBackportMod(
         await wttCommon.CustomAssortSchemeService.CreateCustomAssortSchemes(assembly);
         await wttCommon.CustomQuestService.CreateCustomQuests(assembly);
         var modDir = modHelper.GetAbsolutePathToModFolder(assembly);
+        _tiers = QuestTiers<MongoId>.Load(Path.Combine(modDir, "db", "QuestTiers.json"), id => new MongoId(id));
         await LoadOptional(assembly, modDir);
         ReportLoaded(modDir);
+        if (_tiers != null)
+        {
+            QuestTierPatch.Tiers = _tiers;
+            QuestTierPatch.Profiles = profileHelper;
+            QuestTierPatch.Logger = logger;
+            new QuestTierPatch().Enable();
+            logger.Info($"{Tag} {_tiers.Count} quests unlock once enough quests are done at a loyalty level, like 1.0");
+        }
 
         var config = ModConfig.Load(Path.Combine(modDir, "config.json"), logger);
         if (config.CheckForUpdates)
@@ -115,6 +128,7 @@ public class QuestBackportMod(
 
             quests.Remove(ours);
             _replaced.Add(ours);
+            _tiers?.Rename(new MongoId(ours), new MongoId(theirs));
             foreach (var trader in tradersTable.Values)
             {
                 if (trader.QuestAssort == null)

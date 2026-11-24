@@ -14,6 +14,10 @@ from convert import Ctx, convert_objective  # noqa: E402
 DATA, SPT_DB = sys.argv[1], sys.argv[2]
 ctx = Ctx(SPT_DB, json.load(open(f"{DATA}/wtt_ids.json")))
 ctx.text = {k: v for k, v in json.load(open(f"{DATA}/tasks_pve_en.json", encoding="utf-8"))["data"].items()}
+_items = json.load(open(f"{DATA}/items.json", encoding="utf-8"))["data"]
+_items = _items.get("items", _items)
+_items = _items if isinstance(_items, list) else list(_items.values())
+ctx.categories = {x["id"]: x["categories"][0] for x in _items if x.get("categories")}
 tasks = json.load(open(f"{DATA}/tasks_pve.json", encoding="utf-8"))["data"]["tasks"]
 tasks = tasks if isinstance(tasks, list) else list(tasks.values())
 
