@@ -11,6 +11,7 @@ usage: python translations.py
     keeping what's already translated
 """
 import csv
+import io
 import json
 import os
 import sys
@@ -43,9 +44,11 @@ def read(code):
     """{id: translation} for the non-empty rows of translations/<code>.csv."""
     with open(_path(code), newline="", encoding="utf-8-sig") as f:
         text = f.read()
-    # Excel saves with ";" in many European and Russian locales
-    dialect = csv.Sniffer().sniff(text.split("\n", 1)[0], delimiters=",;\t")
-    rows = csv.DictReader(text.splitlines(), dialect=dialect)
+    # Excel saves with ";" in many European and Russian locales. Only take the delimiter from the
+    # sniffer: on a header without quotes it also guesses doublequote=False, which breaks every
+    # row whose text has a quote in it.
+    delimiter = csv.Sniffer().sniff(text.split("\n", 1)[0], delimiters=",;\t").delimiter
+    rows = csv.DictReader(io.StringIO(text), delimiter=delimiter)
     return {r["id"]: r["translation"].strip() for r in rows if r.get("id") and (r.get("translation") or "").strip()}
 
 
