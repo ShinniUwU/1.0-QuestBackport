@@ -459,6 +459,11 @@ QUEST_TYPE = {"shoot": "Elimination", "giveItem": "PickUp", "findItem": "PickUp"
 
 
 def start_conditions(t):
+    fix = OVERRIDES.get("unlocks", {}).get(t["id"], {})
+    for k, v in fix.items():
+        if not k.startswith("_") and t.get(k):
+            ctx.warn(t["id"], f"tarkov.dev has {k} now, the override in overrides.json may be outdated")
+    t = {**t, **{k: v for k, v in fix.items() if not k.startswith("_")}}
     out = []
     if t.get("minPlayerLevel"):
         out.append({"compareMethod": ">=", "conditionType": "Level", "dynamicLocale": False, "globalQuestCounterId": "",

@@ -131,6 +131,23 @@
     }
   ],
   "drop": [],
+  "_unlocks": "1.0 unlocks tarkov.dev has no data for (it lists no requirement at all), from the wiki. Replaces tarkov.dev's field of the same name",
+  "unlocks": {
+    "5d25e2e286f77444001e2e48": {"_name": "The Huntsman Path - Sellout", "traderRequirements": [{"requirementType": "level", "trader": "5c0647fdd443bc2504c2d371", "value": 2}]},
+    "60c0c018f7afb4354815096a": {"_name": "The Huntsman Path - Factory Chief", "traderRequirements": [{"requirementType": "level", "trader": "5c0647fdd443bc2504c2d371", "value": 2}]},
+    "6578eb36e5020875d64645cd": {"_name": "The Huntsman Path - Crooked Cop", "traderRequirements": [{"requirementType": "level", "trader": "5c0647fdd443bc2504c2d371", "value": 2}]},
+    "64e7b971f9d6fa49d6769b44": {"_name": "The Huntsman Path - Big Game", "otherRequirements": [{"id": "override", "type": "globalVariable", "variableId": "6a43a095bfef0cd74c298963", "value": 2}]},
+    "60e71b9bbd90872cb85440f3": {"_name": "Capturing Outposts", "traderRequirements": [{"requirementType": "level", "trader": "54cb50c76803fa8b248b4571", "value": 2}]},
+    "6391359b9444fb141f4e6ee6": {"_name": "You've Got Mail", "traderRequirements": [{"requirementType": "level", "trader": "54cb50c76803fa8b248b4571", "value": 2}]},
+    "639136d68ba6894d155e77cf": {"_name": "Green Corridor", "traderRequirements": [{"requirementType": "level", "trader": "54cb50c76803fa8b248b4571", "value": 2}]},
+    "64e7b9bffd30422ed03dad38": {"_name": "Gendarmerie - District Patrol", "traderRequirements": [{"requirementType": "level", "trader": "54cb50c76803fa8b248b4571", "value": 2}]},
+    "669fa399033a3ce9870338a8": {"_name": "Possessor", "traderRequirements": [{"requirementType": "level", "trader": "54cb50c76803fa8b248b4571", "value": 2}]},
+    "59c512ad86f7741f0d09de9b": {"_name": "The Punisher - Part 3", "otherRequirements": [{"id": "override", "type": "globalVariable", "variableId": "6a2688488bba18e0b0187a04", "value": 1}]},
+    "6752f6d83038f7df520c83e8": {"_name": "A Helping Hand", "traderRequirements": [{"requirementType": "level", "trader": "5a7c2eca46aef81a7ca2145d", "value": 2}]},
+    "5a68661a86f774500f48afb0": {"_name": "Health Care Privacy - Part 1", "otherRequirements": [{"id": "override", "type": "globalVariable", "variableId": "6a4e4ab3ecd1145894d00990", "value": 3}]},
+    "63966faeea19ac7ed845db2c": {"_name": "Information Source", "taskRequirements": [{"task": "625d700cc48e6c62a440fab5", "status": ["complete", "failed"]}]},
+    "675c15fbf7da9792a4059871": {"_name": "Provide Viewership", "taskRequirements": [{"task": "6834158f2f0e2a7eb90b62c8", "status": ["active", "complete"]}]}
+  },
   "text": {
     "69ce1cfb298a6529b30d712d": "Locate and neutralize the Goons on Lighthouse (stand-in for The Wedge's squad on Icebreaker)",
     "69e5593e3f425636f1d762d9": "Repair the equipment at the first water treatment plant building entrance on Lighthouse (stand-in for Icebreaker)",

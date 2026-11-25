@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.2 (2026-11-25)
+
+- Fixes Jaeger's boss quests showing up right after unlocking Jaeger. tarkov.dev has no unlock data for 14 quests, so 0.4.0 opened them at LL1. They now wait like in 1.0: Sellout, Factory Chief and Crooked Cop for Jaeger LL2, Big Game for 2 Jaeger quests done at LL2
+- Same fix for Capturing Outposts, You've Got Mail, Green Corridor, Gendarmerie - District Patrol, Possessor (Prapor LL2), The Punisher - Part 3 (1 Prapor quest done at LL2), A Helping Hand (Mechanic LL2) and Health Care Privacy - Part 1 (3 Therapist quests done at LL1)
+- Information Source waits for Getting Acquainted again and Provide Viewership for Easy Money - Part 2
+- The server log now says 171 quests unlock once enough quests are done at a loyalty level
+
 ## 0.4.1 (2026-11-25)
 
 - Fixes BEARs getting USEC quests and the other way round (19 quests: Supplements and Vitamins from Skier, the faction Gunsmith parts, Oil Run, Inventory Files, A Big Loss, Debtor and more). 1.0 split these by faction and 0.4.0 took their 1.0 unlocks, but only marked new quests as faction-only. Shaking Up the Teller and House Arrest stay open to both sides, since Perfect Mediator and House Arrest - Part 2 need them
