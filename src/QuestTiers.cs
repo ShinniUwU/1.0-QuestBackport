@@ -9,14 +9,29 @@ public sealed class QuestTiers<TId> where TId : notnull
 {
     public record Lock(string Trader, int Level, int Count);
 
-    private record TiersFile(Dictionary<string, Lock>? Locks, Dictionary<string, Dictionary<string, List<string>>>? Counted);
+    // after: the old prerequisites and the statuses that count; later: the quests 1.0 puts after this one
+    private record OldOrderFile(Dictionary<string, List<int>>? After, List<string>? Later);
+
+    private sealed class OldOrder
+    {
+        public Dictionary<TId, HashSet<int>> After = new();
+        public HashSet<TId> Later = new();
+    }
+
+    private record TiersFile(
+        Dictionary<string, Lock>? Locks,
+        Dictionary<string, Dictionary<string, List<string>>>? Counted,
+        Dictionary<string, OldOrderFile>? OldOrder
+    );
 
     private static readonly JsonSerializerOptions Options = new() { PropertyNameCaseInsensitive = true };
 
     private readonly Dictionary<TId, Lock> _locks = new();
     private readonly Dictionary<(string Trader, int Level), HashSet<TId>> _counted = new();
+    private readonly Dictionary<TId, OldOrder> _oldOrder = new();
 
     public int Count => _locks.Count;
+    public int OldOrderCount => _oldOrder.Count;
 
     public static QuestTiers<TId>? Load(string path, Func<string, TId> id)
     {
@@ -29,7 +44,26 @@ public sealed class QuestTiers<TId> where TId : notnull
         foreach (var (trader, levels) in file?.Counted ?? [])
         foreach (var (level, quests) in levels)
             tiers._counted[(trader, int.Parse(level))] = quests.Select(id).ToHashSet();
+        foreach (var (quest, o) in file?.OldOrder ?? [])
+            tiers._oldOrder[id(quest)] = new OldOrder
+            {
+                After = (o.After ?? []).ToDictionary(a => id(a.Key), a => a.Value.ToHashSet()),
+                Later = (o.Later ?? []).Select(id).ToHashSet(),
+            };
         return tiers;
+    }
+
+    // 1.0 moved this quest ahead of its old prerequisite (The Punisher - Part 1 was SPT's Part 3). A profile
+    // that already has a quest 1.0 puts after it is on the chain the old way, so it waits for the old one.
+    // statuses: the profile's quests and their status
+    public bool WaitsForOldOrder(TId quest, IReadOnlyDictionary<TId, int> statuses)
+    {
+        if (!_oldOrder.TryGetValue(quest, out var o) || !o.Later.Any(statuses.ContainsKey))
+            return false;
+        foreach (var (before, ok) in o.After)
+            if (!statuses.TryGetValue(before, out var s) || !ok.Contains(s))
+                return true;
+        return false;
     }
 
     // finished: the quests the player has completed
@@ -54,5 +88,14 @@ public sealed class QuestTiers<TId> where TId : notnull
         foreach (var counted in _counted.Values)
             if (counted.Remove(ours))
                 counted.Add(theirs);
+        if (_oldOrder.Remove(ours, out var o))
+            _oldOrder[theirs] = o;
+        foreach (var other in _oldOrder.Values)
+        {
+            if (other.After.Remove(ours, out var ok))
+                other.After[theirs] = ok;
+            if (other.Later.Remove(ours))
+                other.Later.Add(theirs);
+        }
     }
 }

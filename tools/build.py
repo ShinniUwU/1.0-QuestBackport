@@ -1107,6 +1107,30 @@ def build_optional(db, write_locales):
     report["optional"] = summary
 
 
+def old_order(spt, final):
+    """Quests 1.0 moved ahead of their old prerequisite (The Punisher - Part 1 was SPT's Part 3). A profile
+    already on the chain the old way keeps the old order: the quest waits for that old prerequisite while
+    the profile has any quest 1.0 puts after it. Fresh profiles can't have those, so they get 1.0's order."""
+    req = {qid: {c["target"] for c in q["conditions"]["AvailableForStart"] if c["conditionType"] == "Quest"} for qid, q in final.items()}
+    needs = {}  # quest -> the quests that need it
+    for qid, rs in req.items():
+        for r in rs:
+            needs.setdefault(r, set()).add(qid)
+    out = {}
+    for qid in sorted(set(spt) & set(final)):
+        later, todo = set(), [qid]
+        while todo:
+            for n in needs.get(todo.pop(), ()):
+                if n not in later and n != qid:
+                    later.add(n)
+                    todo.append(n)
+        after = {c["target"]: sorted(c.get("status") or [4]) for c in spt[qid]["conditions"]["AvailableForStart"]
+                 if c["conditionType"] == "Quest" and c["target"] not in req[qid] and c["target"] in later}
+        if after:
+            out[qid] = {"after": after, "later": sorted(later)}
+    return out
+
+
 def write_tiers(db, by_trader):
     """db/QuestTiers.json for Mod.cs: the quests 1.0 unlocks once N quests are done for a trader at a
     loyalty level, and per trader and level the quests that count, by the level they unlock at."""
@@ -1147,8 +1171,12 @@ def write_tiers(db, by_trader):
             if c["conditionType"] == "Quest" and qid in ctx.quests and c["target"] not in before and c["target"] in failable and 5 not in c["status"]:
                 ctx.warn(qid, f"{name_of(qid)} now needs {name_of(c['target'])}, which can be failed for good")
     locks = {qid: QUEST_LOCKS[qid] for qid in sorted(QUEST_LOCKS) if qid in final}
-    json.dump({"locks": locks, "counted": counted}, open(os.path.join(db, "QuestTiers.json"), "w"), indent=1)
+    reordered = old_order(ctx.quests, final)
+    for qid, o in reordered.items():
+        ctx.warn(qid, f"{name_of(qid)} keeps the old order for profiles already past it, after {', '.join(name_of(r) for r in o['after'])}")
+    json.dump({"locks": locks, "counted": counted, "oldOrder": reordered}, open(os.path.join(db, "QuestTiers.json"), "w"), indent=1)
     report["tiers"] = len(locks)
+    report["old_order"] = len(reordered)
 
 
 # ---------------------------------------------------------------- main
@@ -1224,8 +1252,20 @@ def main():
             os.makedirs(os.path.join(base, "QuestAssort"), exist_ok=True)
             json.dump(quest_assort[trader], open(os.path.join(base, "QuestAssort", "assort.json"), "w"), indent=1)
 
-    side = {"usecOnlyQuests": [t["id"] for t in tasks if t.get("factionName") == "USEC" and t["id"] not in ctx.quests and t["id"] not in SKIP],
-            "bearOnlyQuests": [t["id"] for t in tasks if t.get("factionName") == "BEAR" and t["id"] not in ctx.quests and t["id"] not in SKIP]}
+    # SPT's own quests too: 1.0 split chains like Vitamins/Supplements by faction, and their 1.0 unlocks
+    # no longer go through the other side's quest. One SPT had for both sides stays that way when a quest
+    # for both sides needs it (Perfect Mediator needs Shaking Up the Teller), or the other side loses that one
+    needed = {r["task"] if isinstance(r["task"], str) else r["task"]["id"]
+              for t in tasks if t.get("factionName") == "Any" for r in t.get("taskRequirements") or []}
+    side = {"usecOnlyQuests": [], "bearOnlyQuests": []}
+    for t in tasks:
+        faction = t.get("factionName")
+        if faction not in ("USEC", "BEAR") or t["id"] in SKIP:
+            continue
+        if t["id"] in ctx.quests and t["id"] in needed:
+            ctx.warn(t["id"], f"{name_of(t['id'])} stays for both sides, a quest for both sides needs it")
+            continue
+        side[f"{faction.lower()}OnlyQuests"].append(t["id"])
     json.dump(side, open(os.path.join(db, "CustomQuests", "QuestSideData.json"), "w"), indent=1)
     write_tiers(db, by_trader)
 

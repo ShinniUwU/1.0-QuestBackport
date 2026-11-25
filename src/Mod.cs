@@ -72,6 +72,8 @@ public class QuestBackportMod(
             QuestTierPatch.Logger = logger;
             new QuestTierPatch().Enable();
             logger.Info($"{Tag} {_tiers.Count} quests unlock once enough quests are done at a loyalty level, like 1.0");
+            if (_tiers.OldOrderCount > 0)
+                logger.Info($"{Tag} {_tiers.OldOrderCount} quests 1.0 reordered keep the old order for profiles already past them");
         }
 
         var config = ModConfig.Load(Path.Combine(modDir, "config.json"), logger);

@@ -10,7 +10,8 @@ using SPTarkov.Server.Core.Models.Enums;
 namespace QuestBackport;
 
 // The quest list SPT sends the client. Leaves out the quests 1.0 unlocks once enough quests are done at a
-// loyalty level until they are. Quests the profile already has stay, whatever unlocked them.
+// loyalty level until they are, and quests 1.0 reordered from profiles still on the old order. Quests the
+// profile already has stay, whatever unlocked them.
 public class QuestTierPatch : AbstractPatch
 {
     internal static QuestTiers<MongoId>? Tiers;
@@ -34,17 +35,19 @@ public class QuestTierPatch : AbstractPatch
             var statuses = Profiles.GetPmcProfile(sessionId)?.Quests;
             if (statuses == null)
                 return;
-            var known = new HashSet<MongoId>();
+            var known = new Dictionary<MongoId, int>();
             var finished = new HashSet<MongoId>();
             foreach (var s in statuses)
             {
                 if (s.Status != QuestStatusEnum.Locked)
-                    known.Add(s.QId);
+                    known[s.QId] = (int)s.Status;
                 if (s.Status == QuestStatusEnum.Success)
                     finished.Add(s.QId);
             }
 
-            __result = __result.Where(q => known.Contains(q.Id) || !tiers.IsLocked(q.Id, finished)).ToList();
+            __result = __result
+                .Where(q => known.ContainsKey(q.Id) || (!tiers.IsLocked(q.Id, finished) && !tiers.WaitsForOldOrder(q.Id, known)))
+                .ToList();
         }
         catch (Exception e)
         {
