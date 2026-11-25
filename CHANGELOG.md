@@ -3,7 +3,7 @@
 ## 0.4.1 (2026-11-25)
 
 - Fixes BEARs getting USEC quests and the other way round (Supplements from Skier, Textile, Drip-Out, Gunsmith - M4A1 and more). 1.0 split these by faction and 0.4.0 took their 1.0 unlocks, but only marked new quests as faction-only. Shaking Up the Teller and House Arrest stay open to both sides, since Perfect Mediator and House Arrest - Part 2 need them
-- Fixes The Punisher - Part 1 showing up as new for players already on Part 3. 1.0 reordered the chain (its Part 1 is SPT's old Part 3), so it now waits for the old Part 2 on profiles that started the chain the old way. New profiles get 1.0's order. Any other quest 1.0 reordered works the same
+- Fixes The Punisher - Part 1 showing up as new for players already on Part 3. 1.0 reordered the chain (its Part 1 is SPT's old Part 3), so it now waits for the old Part 2 on profiles that started the chain the old way. New profiles get 1.0's order. Sew it Good - Part 2, Gunsmith Master - Part 1, A Life Lesson and The Survivalist Path - Thrifty were reordered too and work the same way
 
 ## 0.4.0 (2026-11-24)
 

@@ -1109,26 +1109,44 @@ def build_optional(db, write_locales):
 
 def old_order(spt, final):
     """Quests 1.0 moved ahead of their old prerequisite (The Punisher - Part 1 was SPT's Part 3). A profile
-    already on the chain the old way keeps the old order: the quest waits for that old prerequisite while
-    the profile has any quest 1.0 puts after it. Fresh profiles can't have those, so they get 1.0's order."""
-    req = {qid: {c["target"] for c in q["conditions"]["AvailableForStart"] if c["conditionType"] == "Quest"} for qid, q in final.items()}
-    needs = {}  # quest -> the quests that need it
-    for qid, rs in req.items():
-        for r in rs:
-            needs.setdefault(r, set()).add(qid)
-    out = {}
-    for qid in sorted(set(spt) & set(final)):
-        later, todo = set(), [qid]
+    already past the quest the old way keeps the old order: while it has the old prerequisite or a quest
+    between the two, the quest waits for that prerequisite. Fresh profiles get 1.0's order.
+    Returns (old order per quest, the (quest, prerequisite) pairs that only count the prerequisite itself)."""
+    def reqs(db, qid):
+        return {c["target"] for c in db[qid]["conditions"]["AvailableForStart"] if c["conditionType"] == "Quest"}
+
+    def walk(step, qid):
+        out, todo = set(), [qid]
         while todo:
-            for n in needs.get(todo.pop(), ()):
-                if n not in later and n != qid:
-                    later.add(n)
+            for n in step(todo.pop()):
+                if n not in out and n != qid:
+                    out.add(n)
                     todo.append(n)
-        after = {c["target"]: sorted(c.get("status") or [4]) for c in spt[qid]["conditions"]["AvailableForStart"]
-                 if c["conditionType"] == "Quest" and c["target"] not in req[qid] and c["target"] in later}
+        return out
+
+    needs = {}  # quest -> the quests that need it in 1.0
+    for qid in final:
+        for r in reqs(final, qid):
+            needs.setdefault(r, set()).add(qid)
+    out, skipped = {}, []
+    for qid in sorted(set(spt) & set(final)):
+        later = walk(lambda x: needs.get(x, ()), qid)
+        after, on_way = {}, set()
+        for c in spt[qid]["conditions"]["AvailableForStart"]:
+            r = c.get("target")
+            if c["conditionType"] != "Quest" or r in reqs(final, qid) or r not in later:
+                continue
+            between = walk(lambda x: reqs(spt, x) if x in spt else (), r) & later
+            # a quest between only counts when the old prerequisite still unlocks without this quest,
+            # or the profile is stuck. Having the prerequisite itself is always safe
+            if walk(lambda x: reqs(final, x) if x in final else (), r) & later - between:
+                skipped.append((qid, r))
+                between = set()
+            after[r] = sorted(c.get("status") or [4])
+            on_way |= between | {r}
         if after:
-            out[qid] = {"after": after, "later": sorted(later)}
-    return out
+            out[qid] = {"after": after, "later": sorted(on_way)}
+    return out, skipped
 
 
 def write_tiers(db, by_trader):
@@ -1171,7 +1189,9 @@ def write_tiers(db, by_trader):
             if c["conditionType"] == "Quest" and qid in ctx.quests and c["target"] not in before and c["target"] in failable and 5 not in c["status"]:
                 ctx.warn(qid, f"{name_of(qid)} now needs {name_of(c['target'])}, which can be failed for good")
     locks = {qid: QUEST_LOCKS[qid] for qid in sorted(QUEST_LOCKS) if qid in final}
-    reordered = old_order(ctx.quests, final)
+    reordered, stuck = old_order(ctx.quests, final)
+    for qid, r in stuck:
+        ctx.warn(qid, f"{name_of(qid)} only keeps the old order for profiles that already have {name_of(r)}, it needs {name_of(qid)} in 1.0")
     for qid, o in reordered.items():
         ctx.warn(qid, f"{name_of(qid)} keeps the old order for profiles already past it, after {', '.join(name_of(r) for r in o['after'])}")
     json.dump({"locks": locks, "counted": counted, "oldOrder": reordered}, open(os.path.join(db, "QuestTiers.json"), "w"), indent=1)
