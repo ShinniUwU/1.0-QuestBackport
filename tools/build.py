@@ -718,6 +718,10 @@ def _patch_unlocks(q, t, changes):
     out = [c for c in start if c["conditionType"] == "Level"]
     for c in start_conditions(t):
         if c["conditionType"] == "Level":
+            # SPT gates some quests only by a quest 1.0 dropped (Consolation Prize), so they'd open at level 1
+            if not out and c["value"] > 1:
+                changes.append(f"level +{c['value']}")
+                out.append(c)
             continue
         key = (c["conditionType"], c["target"])
         prev = old.get(key)

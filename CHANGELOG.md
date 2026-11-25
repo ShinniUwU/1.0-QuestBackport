@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.3 (2026-11-25)
+
+- Fixes Consolation Prize showing up as soon as Skier is unlocked. SPT only gated it behind A Life Lesson, 1.0 dropped that for level 46, and 0.4.0 took the drop but not the level. It now waits for level 46
+- Same fix for Test Drive - Part 3 (level 25), Test Drive - Part 6 (level 35) and Keeper's Word (level 26). 105 quests in total get their 1.0 level requirement back, the rest were still gated by their prerequisite quest
+- The server log now counts 455 quests
+
 ## 0.4.2 (2026-11-25)
 
 - Fixes Jaeger's boss quests showing up right after unlocking Jaeger. tarkov.dev has no unlock data for 14 quests, so 0.4.0 opened them at LL1. They now wait like in 1.0: Sellout, Factory Chief and Crooked Cop for Jaeger LL2, Big Game for 2 Jaeger quests done at LL2
