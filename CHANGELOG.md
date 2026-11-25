@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.4 (2026-11-25)
+
+- Fixes the Mk-18 at Jaeger LL4 unlocking from an LL1 quest. 1.0 turned Hunter into All This Filth..., a 20 Scav quest Jaeger gives at LL1, but it kept SPT's old reward for killing Shturman. The offer now unlocks with The Tarkov Shooter - Part 7 like in 1.0 (SPT's Part 8)
+- If you finished the old Hunter but not The Tarkov Shooter - Part 7 yet, the Mk-18 offer is locked again until you do
+
 ## 0.4.3 (2026-11-25)
 
 - Fixes Consolation Prize showing up as soon as Skier is unlocked. SPT only gated it behind A Life Lesson, 1.0 dropped that for level 46, and 0.4.0 took the drop but not the level. It now waits for level 46

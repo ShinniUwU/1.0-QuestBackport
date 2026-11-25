@@ -64,6 +64,7 @@ public class QuestBackportMod(
         var modDir = modHelper.GetAbsolutePathToModFolder(assembly);
         _tiers = QuestTiers<MongoId>.Load(Path.Combine(modDir, "db", "QuestTiers.json"), id => new MongoId(id));
         await LoadOptional(assembly, modDir);
+        MoveUnlocks(modDir);
         ReportLoaded(modDir);
         if (_tiers != null)
         {
@@ -140,6 +141,38 @@ public class QuestBackportMod(
                     locks[assort] = new MongoId(theirs);
             }
         }
+    }
+
+    private record MovedUnlock(string From, string To);
+
+    // db/MovedUnlocks.json, written by tools/build.py: trader offers 1.0 unlocks from another quest than SPT
+    // (the Mk-18 at Jaeger LL4 came from Hunter, 1.0 gives it for The Tarkov Shooter - Part 7, SPT's Part 8).
+    private void MoveUnlocks(string modDir)
+    {
+        var path = Path.Combine(modDir, "db", "MovedUnlocks.json");
+        if (!File.Exists(path))
+            return;
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var moves = JsonSerializer.Deserialize<Dictionary<string, MovedUnlock>>(File.ReadAllText(path), options) ?? [];
+        var moved = 0;
+        foreach (var trader in tradersTable.Values)
+        {
+            if (trader.QuestAssort == null)
+                continue;
+            foreach (var locks in trader.QuestAssort.Values)
+            foreach (var assort in locks.Keys.ToList())
+            {
+                // only while the offer still waits on SPT's quest, another mod may have moved it already
+                if (moves.TryGetValue(assort.ToString(), out var move) && locks[assort] == move.From)
+                {
+                    locks[assort] = new MongoId(move.To);
+                    moved++;
+                }
+            }
+        }
+
+        if (moved < moves.Count)
+            logger.Warning($"{Tag} moved {moved}/{moves.Count} trader offers to their 1.0 quest");
     }
 
     private async Task CheckForUpdate(ModConfig config)

@@ -82,7 +82,7 @@ Adding Icebreaker Backport to a profile that already started one of those 9 stan
 ## What it leaves alone
 
 - **Trader standing.** 1.0 rescaled trader loyalty about 10x. Standing rewards on existing quests keep SPT's values, and new quests get the 1.0 value scaled to SPT's thresholds.
-- **Craft and trader unlock rewards on existing quests.** Removing them can lock a hideout recipe or trader item for good.
+- **Craft and trader unlock rewards on existing quests.** Removing them can lock a hideout recipe or trader item for good. The one exception is the Mk-18 at Jaeger LL4, which moved to The Tarkov Shooter - Part 7 like in 1.0, since Hunter became an LL1 quest.
 - **Quests 1.0 removed.** They stay in the game.
 
 ## Building

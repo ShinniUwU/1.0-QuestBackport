@@ -1210,6 +1210,37 @@ def write_tiers(db, by_trader):
 
 # ---------------------------------------------------------------- main
 
+def move_unlocks(db, by_trader):
+    """Trader offers 1.0 unlocks from another quest than SPT. All This Filth... (SPT's Hunter) became an LL1 Scav
+    quest but still unlocked the Mk-18 at Jaeger LL4, which 1.0 gives for The Tarkov Shooter - Part 7 (SPT's Part 8).
+    The reward moves here; Mod.cs moves the trader's lock using db/MovedUnlocks.json."""
+    quests = {qid: q for qs in by_trader.values() for qid, q in qs.items()}
+    out = {}
+    for src, m in (OVERRIDES.get("moveUnlocks") or {}).items():
+        dst = m["to"]
+        if src not in quests or dst not in quests:
+            raise SystemExit(f"moveUnlocks: {name_of(src)} and {name_of(dst)} must both be patched")
+        rewards = quests[src]["rewards"]["Success"]
+        moving = [r for r in rewards if r["type"] == "AssortmentUnlock" and r["items"] and r["items"][0]["_tpl"] in m["items"]]
+        if not moving:
+            raise SystemExit(f"moveUnlocks: {name_of(src)} has no unlock for {m['items']}")
+        quests[src]["rewards"]["Success"] = [r for r in rewards if r not in moving]
+        quests[dst]["rewards"]["Success"].extend(moving)
+        trader = quests[src]["traderId"]
+        locks = json.load(open(f"{SPT_DB}/traders/{trader}/questassort.json", encoding="utf-8")).get("success", {})
+        stock = {i["_id"]: i["_tpl"] for i in traders_assort.get(trader, {}).get("items", [])}
+        for aid, qid in locks.items():
+            if qid == src and stock.get(aid) in m["items"]:
+                out[aid] = {"from": src, "to": dst}
+        for e in report["patched"]:
+            if e["id"] == src:
+                e["changes"].append(f"-unlock moved to {name_of(dst)}")
+            if e["id"] == dst:
+                e["changes"].append(f"+unlock from {name_of(src)}")
+    os.makedirs(db, exist_ok=True)
+    json.dump(out, open(os.path.join(db, "MovedUnlocks.json"), "w"), indent=1)
+
+
 def main():
     db = os.path.join(OUT, "db")
     for sub in ("CustomQuests", "CustomQuestZones", "CustomLootspawns"):
@@ -1235,6 +1266,7 @@ def main():
         by_trader.setdefault(q["traderId"], {})[qid] = q
         locales.setdefault(q["traderId"], {}).update(loc)
 
+    move_unlocks(db, by_trader)
     translations.write_template({k: v for loc in locales.values() for k, v in loc.items() if v})
     translated = {code: translations.read(code) for code in translations.languages()}
     report["translations"] = {}

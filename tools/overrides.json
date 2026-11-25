@@ -148,6 +148,10 @@
     "63966faeea19ac7ed845db2c": {"_name": "Information Source", "taskRequirements": [{"task": "625d700cc48e6c62a440fab5", "status": ["complete", "failed"]}]},
     "675c15fbf7da9792a4059871": {"_name": "Provide Viewership", "taskRequirements": [{"task": "6834158f2f0e2a7eb90b62c8", "status": ["active", "complete"]}]}
   },
+  "_moveUnlocks": "Trader offers 1.0 unlocks from a different quest than SPT (tarkov.dev offerUnlock and the wiki). quest -> {to: quest, items: offered item tpls}",
+  "moveUnlocks": {
+    "600302d73b897b11364cd161": {"_name": "All This Filth... (SPT's Hunter) -> The Tarkov Shooter - Part 7 (SPT's Part 8): Mk-18 at Jaeger LL4", "to": "5bc4893c86f774626f5ebf3e", "items": ["5fc22d7c187fea44d52eda44"]}
+  },
   "text": {
     "69ce1cfb298a6529b30d712d": "Locate and neutralize the Goons on Lighthouse (stand-in for The Wedge's squad on Icebreaker)",
     "69e5593e3f425636f1d762d9": "Repair the equipment at the first water treatment plant building entrance on Lighthouse (stand-in for Icebreaker)",
