@@ -15,7 +15,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from convert import (MAP_SUBSTITUTES, STATUS, Ctx, _equipment_sub, _location_sub, _zone_ids,  # noqa: E402
-                     convert_objective, mongo_id, wearing_groups)
+                     convert_objective, mongo_id, place_zone_id, wearing_groups)
 import translations  # noqa: E402
 import checks  # noqa: E402
 
@@ -340,13 +340,15 @@ def _map_name_text(text):
     return text.replace("on Icebreaker", "on Lighthouse").replace("Icebreaker", "Lighthouse")
 
 
-def build_zone(z, ztype):
+def build_zone(z, ztype, zone_id=None):
+    """zone_id: put the zone under our own shared id (one "mark any" spot of several)."""
     m = ctx.map_id(z["map"])
     loc = ctx.loc_by_mongo.get(m)
     if not loc:
         return
-    key = (z["id"], loc.lower())
-    if any((x["ZoneId"], x["ZoneLocation"]) == key for x in zones_out):
+    name = f"{zone_id}_{z['id']}" if zone_id else z["id"]
+    key = (name, loc.lower())
+    if any((x["ZoneName"], x["ZoneLocation"]) == key for x in zones_out):
         return
     p = z["position"]
     top, bottom = z.get("top"), z.get("bottom")
@@ -364,7 +366,7 @@ def build_zone(z, ztype):
     cy = (top + bottom) / 2 if top is not None and bottom is not None else p["y"]
     f = lambda v: f"{v:.4f}"  # noqa: E731
     zones_out.append({
-        "ZoneId": z["id"], "ZoneName": z["id"], "ZoneLocation": loc.lower(), "ZoneType": ztype, "FlareType": "",
+        "ZoneId": zone_id or z["id"], "ZoneName": name, "ZoneLocation": loc.lower(), "ZoneType": ztype, "FlareType": "",
         "Position": {"X": f(cx), "Y": f(cy), "Z": f(cz), "W": "0"},
         "Rotation": {"X": "0", "Y": "0", "Z": "0", "W": "1"},
         "Scale": {"X": f(max(sx, 1)), "Y": f(max(sy, 1)), "Z": f(max(sz, 1)), "W": "0"},
@@ -378,6 +380,11 @@ ZONE_TYPE = {"visit": "visit", "plantItem": "placeitem", "plantQuestItem": "plac
 def ensure_zones(o):
     ztype = ZONE_TYPE.get(o["type"])
     if not ztype:
+        return
+    shared = place_zone_id(o) if ztype == "placeitem" else ""
+    if shared and shared not in _zone_ids(o):
+        for z in o.get("zones") or []:
+            build_zone(z, ztype, shared)
         return
     for z in o.get("zones") or []:
         if z["id"] not in KNOWN_ZONES or z["map"] in MAP_SUBSTITUTES:
@@ -433,6 +440,8 @@ def objectives_for(t, locale, ov=None):
     for i, o in enumerate(t["objectives"]):
         if o["id"] in ov.get("drop", []):
             continue
+        if o.get("optional"):
+            continue  # the client has no optional objectives, it would become required
         o = dict(o)
         o.update(ov.get("objectives", {}).get(o["id"], {}))
         text = TEXT.get(o["id"]) or ""
@@ -610,6 +619,10 @@ def patch_quest(t):
         shown = OVERRIDES.get("text", {}).get(o["id"])
         old = by_id.get(o["id"])
         if old is None:
+            # the client has no optional objectives; one SPT doesn't have would become required
+            if o.get("optional"):
+                changes.append(f"-optional {o['type']}")
+                continue
             o2, new_text = substitute(dict(o), qid, text)
             if o2 is None:
                 continue
@@ -651,10 +664,10 @@ def patch_quest(t):
                 if old.get(k, new[k]) != new[k]:
                     changes.append(f"{k} {old[k]}->{new[k]}")
                     old[k] = new[k]
-        # 1.0 moved some plant spots (Golden Swag: portable cabin -> dorm 303)
+        # 1.0 moved some plant spots (Golden Swag: portable cabin -> dorm 303), and merged
+        # "mark the first/second/... X" into one "mark any X" (Steady Signal, Abandoned Cargo)
         if old["conditionType"] in ("LeaveItemAtLocation", "PlaceBeacon") and new["conditionType"] == old["conditionType"]:
-            new_zones = [z["id"] for z in o.get("zones") or []]
-            if new_zones and old.get("zoneId") not in new_zones:
+            if o.get("zones") and old.get("zoneId") != new["zoneId"]:
                 ensure_zones(o)
                 changes.append(f"zone {old.get('zoneId')}->{new['zoneId']}")
                 old["zoneId"] = new["zoneId"]

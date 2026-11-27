@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.5 (2026-11-27)
+
+- Fixes Steady Signal and Abandoned Cargo only taking the marker at one spot (weather station 1, the cargo box in the red warehouse). 1.0 merged "mark the first/second/..." into one "mark any", and the old client takes one zone per objective. The mod now adds its own zone at every spot, so any weather station or cargo box works
+- Same fix for Black Swan, Revision - Lighthouse, Oil Run, Tigr Safari and Fuel Crisis
+- Optional 1.0 objectives SPT doesn't have are left out instead of becoming required, since the client has no optional objectives. 23 objectives in 11 quests, like Abandoned Cargo's "Locate the cargo" ones and Supervisor's extra register keys
+
 ## 0.4.4 (2026-11-25)
 
 - Fixes the Mk-18 at Jaeger LL4 unlocking from an LL1 quest. 1.0 turned Hunter into All This Filth..., a 20 Scav quest Jaeger gives at LL1, but it kept SPT's old reward for killing Shturman. The offer now unlocks with The Tarkov Shooter - Part 7 like in 1.0 (SPT's Part 8)

@@ -167,6 +167,19 @@ def _zone_ids(o):
     return ids
 
 
+ANY_ZONE_TYPES = ("mark", "plantItem", "plantQuestItem")
+
+
+def place_zone_id(o):
+    """The zoneId for a plant or mark objective. 1.0 merged "mark the first/second/... X" into
+    one "mark any X" with a zone list, but a 0.16.9 condition takes one zoneId, so a list gets
+    a zone id of our own that build.py places at every spot (Steady Signal, Abandoned Cargo)."""
+    zones = _zone_ids(o)
+    if len(zones) > 1 and o["type"] in ANY_ZONE_TYPES:
+        return f"questbackport_any_{o['id']}"
+    return zones[0] if zones else ""
+
+
 def _item_cond(o, ctx, ctype, index, target=None):
     c = {
         "conditionType": ctype,
@@ -211,13 +224,12 @@ def convert_objective(o, qid, ctx, index):
             target = [q if isinstance(q, str) else q["id"]]
         c = _item_cond({**o, "foundInRaid": o.get("foundInRaid", False)}, ctx, "LeaveItemAtLocation", index, list(target))
         zones = _zone_ids(o)
-        c["zoneId"] = zones[0] if zones else ""
+        c["zoneId"] = place_zone_id(o)
         c["plantTime"] = o.get("_plantTime", 20 if t == "plantItem" else 5)
         if not zones:
             ctx.warn(qid, f"{oid} plant objective without zone")
         return c
     if t == "mark":
-        zones = _zone_ids(o)
         m = o["markerItem"]
         return {
             "conditionType": "PlaceBeacon",
@@ -230,7 +242,7 @@ def convert_objective(o, qid, ctx, index):
             "target": [m if isinstance(m, str) else m["id"]],
             "value": o.get("count") or 1,
             "visibilityConditions": [],
-            "zoneId": zones[0] if zones else "",
+            "zoneId": place_zone_id(o),
         }
     if t == "visit":
         subs = []
