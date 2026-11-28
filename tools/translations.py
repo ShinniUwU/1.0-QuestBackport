@@ -49,7 +49,9 @@ def read(code):
     # row whose text has a quote in it.
     delimiter = csv.Sniffer().sniff(text.split("\n", 1)[0], delimiters=",;\t").delimiter
     rows = csv.DictReader(io.StringIO(text), delimiter=delimiter)
-    return {r["id"]: r["translation"].strip() for r in rows if r.get("id") and (r.get("translation") or "").strip()}
+    # a multi-line briefing comes back with \r\n after a git checkout on Windows
+    return {r["id"]: r["translation"].strip().replace("\r\n", "\n") for r in rows
+            if r.get("id") and (r.get("translation") or "").strip()}
 
 
 def languages():

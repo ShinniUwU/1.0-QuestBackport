@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.6 (2026-11-28)
+
+- Quests 1.0 changed now show their 1.0 briefing instead of SPT's old one, 167 quests. Hunter, now All This Filth..., no longer talks about Shturman, Debut no longer asks for MP-133s, and the Gunsmith briefings have the new specs. The text comes from the EFT wiki
+- Russian has all 167: 33 from the Russian EFT wiki, the rest machine-translated. Corrections welcome, see [Translating](CONTRIBUTING.md#translating). The other languages show the English 1.0 briefing until someone translates it
+- The server log now counts 458 quests
+
 ## 0.4.5 (2026-11-27)
 
 - Fixes Steady Signal and Abandoned Cargo only taking the marker at one spot (weather station 1, the cargo box in the red warehouse). 1.0 merged "mark the first/second/..." into one "mark any", and the old client takes one zone per objective. The mod now adds its own zone at every spot, so any weather station or cargo box works

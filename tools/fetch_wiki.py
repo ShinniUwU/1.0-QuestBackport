@@ -2,7 +2,8 @@
 
 usage: python fetch_wiki.py <data dir> <spt database dir>
 
-Only quests SPT doesn't have are fetched; existing quests keep SPT's text.
+Quests SPT doesn't have get their briefing, success text and loyalty level. Quests SPT
+has only get their 1.0 briefing, which build.py uses where 1.0 rewrote SPT's.
 """
 import json
 import os
@@ -31,11 +32,16 @@ except FileNotFoundError:
 
 
 def clean(s):
-    s = re.sub(r"<br\s*/?>", "\n", s)
+    s = re.sub(r"<br\s*/?>", "\n", s).replace("\\n", "\n")
+    s = re.sub(r"<ref[^>]*/>|<ref[^>]*>.*?</ref>", "", s, flags=re.S)  # footnotes
     s = re.sub(r"<[^>]+>", "", s)
     s = re.sub(r"\[\[(?:[^|\]]*\|)?([^\]]+)\]\]", r"\1", s)
     s = re.sub(r"'''?", "", s)
     s = re.sub(r"\{\{[^{}]*\}\}", "", s)
+    # the wiki drops some line breaks ("know their stuff!Just got") and keeps a stray opening quote
+    s = re.sub(r"([a-z][.!?…])([A-Z])", r"\1 \2", s)
+    if s.count('"') % 2 and s.lstrip().startswith('"'):
+        s = s.lstrip()[1:]
     return re.sub(r"[ \t]+", " ", s).strip()
 
 
@@ -92,7 +98,8 @@ def fetch(page):
 
 for t in tasks:
     # entries cached before "loyalty" existed are fetched once more
-    if t["id"] in spt or "loyalty" in cache.get(t["id"], {}) or not t.get("wikiLink"):
+    done = t["id"] in cache if t["id"] in spt else "loyalty" in cache.get(t["id"], {})
+    if done or not t.get("wikiLink"):
         continue
     page = urllib.parse.unquote(t["wikiLink"].rsplit("/wiki/", 1)[-1])
     try:
@@ -101,6 +108,9 @@ for t in tasks:
         print(f"  {page}: {e}")
         continue
     info = parse(wt) if wt else {**cache.get(t["id"], {}), "loyalty": 0}
+    if t["id"] in spt:
+        # SPT's own unlocks, success and fail texts stay
+        info = {k: v for k, v in info.items() if k == "description"}
     cache[t["id"]] = info
     print(f"  {page}: {', '.join(info) or 'no text found'}")
     time.sleep(0.5)

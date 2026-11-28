@@ -43,7 +43,7 @@ Set either to `false` to turn it off. The check is one request to sp-mod.com and
 
 ## Languages
 
-Quest names and objectives use the 1.0 game's own translations (from tarkov.dev) in every language SPT has. Russian, Chinese, Spanish, Italian and Portuguese are almost complete, the others fall back to English where the game has no translation. The trader briefings of the 32 new quests and the stand-in objectives are English only for now.
+Quest names and objectives use the 1.0 game's own translations (from tarkov.dev) in every language SPT has. Russian, Chinese, Spanish, Italian and Portuguese are almost complete, the others fall back to English where the game has no translation. Trader briefings are SPT's, except for the 32 new quests and the 167 quests whose briefing 1.0 changed, which use the 1.0 text from the EFT wiki. Those briefings and the stand-in objectives are in English and Russian, other languages show them in English for now.
 
 To translate those or fix a line, see [Translating](CONTRIBUTING.md#translating). All it takes is a spreadsheet.
 
@@ -124,5 +124,6 @@ To report a broken quest or help out, see [CONTRIBUTING.md](CONTRIBUTING.md). Mo
 - Quest data: [tarkov.dev](https://tarkov.dev) (json.tarkov.dev).
 - Briefing text: [Escape from Tarkov Wiki](https://escapefromtarkov.fandom.com), CC BY-SA 3.0.
 - Quest icons: Battlestate Games.
-- Russian briefings and stand-in objectives: [hekawa](https://sp-mod.com/user/56165/hekawa).
+- Russian briefings of the new quests and stand-in objectives: [hekawa](https://sp-mod.com/user/56165/hekawa).
+- Russian 1.0 briefings of existing quests: [Russian EFT Wiki](https://escapefromtarkov.fandom.com/ru), CC BY-SA 3.0, the rest machine-translated (corrections welcome).
 - Quest, zone, loot and trader loading: [WTT-CommonLib](https://github.com/WelcomeToThursday/WTT-CommonLib).

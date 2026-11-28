@@ -7,6 +7,7 @@ place (counts, levels, targets, rewards) so condition ids, and with them
 existing profile progress, stay valid.
 """
 import copy
+import difflib
 import json
 import os
 import re
@@ -338,6 +339,20 @@ def substitute(o, qid, text):
 
 def _map_name_text(text):
     return text.replace("on Icebreaker", "on Lighthouse").replace("Icebreaker", "Lighthouse")
+
+
+def rewritten_briefing(qid):
+    """The wiki's 1.0 briefing where 1.0 changed SPT's (Hunter -> All This Filth..., Debut's shotguns
+    gone, Gunsmith's new specs), else None. A wiki typo or a changed word keeps SPT's, and with it
+    SPT's own translations."""
+    new, old = WIKI.get(qid, {}).get("description"), SPT_TEXT.get(f"{qid} description")
+    if not new or not old:
+        return new
+    norm = lambda s: re.sub(r"[^a-z0-9]+", " ", s.lower()).strip()  # noqa: E731
+    numbers = lambda s: sorted(re.findall(r"\d+", s))  # noqa: E731
+    if difflib.SequenceMatcher(None, norm(new), norm(old)).ratio() < 0.97 or numbers(new) != numbers(old):
+        return new
+    return None
 
 
 def build_zone(z, ztype, zone_id=None):
@@ -703,6 +718,10 @@ def patch_quest(t):
     _patch_rewards(q, t, changes)
     if t.get("name") and TEXT.get(f"{qid} name"):
         locale[f"{qid} name"] = TEXT[f"{qid} name"]
+    brief = rewritten_briefing(qid)
+    if brief:
+        changes.append("1.0 briefing")
+        locale[f"{qid} description"] = brief
     return q, locale, changes
 
 
